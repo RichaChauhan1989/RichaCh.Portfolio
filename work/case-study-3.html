@@ -1,0 +1,1721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case Study — Tax Filing Platform</title>
+<link rel="preconnect" href="https://api.fontshare.com"><link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900,1&display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Caveat:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#1C1C1A;--bg:#F7F8FA;--paper:#FFFFFF;--navy:#1C1C1A;--navy-dark:#000000;--navy-soft:#EEEFEA;--orange:#1C1C1A;--orange-dark:#000000;--orange-light:#EEEFEA;--mid:#6B6B65;--rule:#E8EBEF;--white:#FFFFFF;--green:#27ae60;--red:#c0392b;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background-color:var(--bg);background-image:linear-gradient(to right, rgba(28,30,42,0.06) 1px, transparent 1px),linear-gradient(to bottom, rgba(28,30,42,0.06) 1px, transparent 1px);background-size:36px 36px;background-attachment:scroll;color:var(--ink);font-family:"Satoshi",sans-serif;font-size:17px;line-height:1.75;-webkit-font-smoothing:antialiased;padding-left:168px;}
+  .left-nav{position:fixed;top:0;left:0;width:168px;height:100vh;padding:40px 0 24px 24px;display:flex;flex-direction:column;gap:2px;background:var(--bg);z-index:100;overflow-y:auto;opacity:1;visibility:visible;pointer-events:auto;}
+  .left-nav a:not(.nav-brand){opacity:0;visibility:hidden;transition:opacity .35s ease, visibility .35s;}
+  .left-nav.visible a:not(.nav-brand){opacity:1;visibility:visible;}
+  .left-nav.visible{opacity:1;visibility:visible;pointer-events:auto;}
+  .left-nav .nav-brand{font-family:"Satoshi",sans-serif;font-size:13px;font-weight:400;color:var(--mid);margin-bottom:24px;padding-left:12px;display:block;text-decoration:none;transition:color 0.15s;}
+  .left-nav .nav-brand:hover{color:var(--ink);}
+  .left-nav .nav-brand::before{content:'';margin-right:0;transition:content 0.15s,margin 0.15s;}
+  .left-nav .nav-brand:hover::before{content:'← ';margin-right:2px;}
+  .left-nav a{font-family:"Satoshi",sans-serif;font-size:14px;color:var(--mid);text-decoration:none;padding:10px 12px;transition:color 0.15s;display:block;line-height:1.3;min-height:24px;}
+  .left-nav a:hover{color:var(--ink);}
+  .left-nav a.active{color:var(--navy);font-weight:600;}
+  .section-anchor{scroll-margin-top:32px;}
+  @media(max-width:760px){.left-nav{display:none;}body{padding-left:0;}}
+  .hero{padding:72px 24px 80px;max-width:820px;margin:0 auto;}
+  .hero-eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:28px;}
+  .hero-logo{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+  .hero-eyebrow-text{display:flex;flex-direction:column;gap:1px;}
+  .hero-company{font-size:14px;font-weight:600;color:var(--ink);}
+  .hero-category{font-size:12px;color:var(--mid);}
+  .hero-headline{font-family:"Satoshi",sans-serif;font-size:clamp(2rem,4vw,3.2rem);font-weight:700;line-height:1.15;color:var(--ink);margin-bottom:32px;max-width:720px;}
+  .hero-body{font-size:17px;line-height:1.7;color:var(--mid);max-width:660px;margin-bottom:40px;font-weight:300;}
+  .hero-body strong{color:var(--ink);font-weight:500;}
+  .meta-row{display:flex;gap:0;flex-wrap:wrap;border-top:1px solid var(--rule);padding-top:28px;}
+  .meta-item{padding:0 28px 0 0;margin-right:28px;margin-bottom:16px;}
+  
+  .meta-label{font-size:10px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--mid);display:block;margin-bottom:4px;}
+  .meta-value{font-size:14px;font-weight:600;color:var(--ink);}
+  .metrics-section{padding:60px 0;background:var(--paper);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);}
+  .metrics-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;margin-top:36px;}
+  .metric-item{padding:0 36px 0 0;margin-right:36px;border-right:1px solid var(--rule);}
+  .metric-item:last-child{border-right:none;margin-right:0;padding-right:0;}
+  .metric-label{font-size:10px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--mid);display:block;margin-bottom:10px;}
+  .metric-number{font-family:"Satoshi",sans-serif;font-size:clamp(2.2rem,4vw,3rem);font-weight:700;color:var(--ink);line-height:1;margin-bottom:10px;display:block;}
+  .metric-desc{font-size:13px;color:var(--mid);line-height:1.5;}
+  .testimonial-block{margin:36px 0 0;padding:24px 28px;background:var(--white);border:0.5px solid var(--rule);border-radius:10px;position:relative;}
+  .testimonial-block::before{content:open-quote;font-family:"DM Serif Display",serif;font-size:72px;color:var(--orange-light);position:absolute;top:-10px;left:20px;line-height:1;speak:none;}
+  .testimonial-quote{font-family:"DM Serif Display",serif;font-size:1rem;font-style:italic;color:var(--ink);line-height:1.6;margin-bottom:18px;position:relative;z-index:1;}
+  .testimonial-quote strong{font-style:normal;color:var(--orange-dark);}
+  .testimonial-meta{display:flex;align-items:center;gap:12px;padding-top:16px;}
+  .testimonial-avatar{width:40px;height:40px;border-radius:50%;background:var(--orange-light);border:1.5px solid var(--orange);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--orange-dark);flex-shrink:0;}
+  .testimonial-info{flex:1;}
+  .testimonial-name{font-size:13px;font-weight:600;color:var(--ink);display:block;margin-bottom:2px;}
+  .testimonial-role{font-size:11px;color:var(--mid);display:block;margin-bottom:3px;}
+  .testimonial-via{font-size:11px;color:var(--mid);display:flex;align-items:center;gap:6px;}
+  .linkedin-badge{display:inline-flex;align-items:center;gap:4px;background:#0A66C2;color:#fff!important;font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;text-decoration:none;}
+  .wrap{max-width:820px;margin:0 auto;padding:0 24px;}
+  section{padding:56px 0;}
+  section:last-child{border-bottom:none;}
+  .chapter{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+  .chapter-num{display:inline-block;font-family:"Satoshi",sans-serif;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--navy);background:var(--navy-soft);padding:6px 12px;border-radius:6px;white-space:nowrap;}
+  .chapter-line{display:none;}
+  h2{font-family:"Satoshi",sans-serif;font-size:clamp(1.6rem,3.5vw,2.2rem);font-weight:700;line-height:1.15;margin-bottom:20px;color:var(--ink);}
+  h3{font-family:"Satoshi",sans-serif;font-size:1rem;font-weight:700;margin-bottom:10px;color:var(--ink);}
+  p{margin-bottom:20px;color:#3a3a3a;font-size:17px;line-height:1.8;}
+  p:last-child{margin-bottom:0;}
+  .pullquote{border-left:2px solid var(--navy);padding:12px 20px;margin:28px 0;}
+  .pullquote p{font-family:"DM Serif Display",serif;font-size:1rem;font-style:italic;color:var(--ink);margin:0;}
+  .gaps-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px 40px;margin-top:32px;}
+  .modules-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin:32px 0 8px;}
+  @media(max-width:760px){.modules-grid{grid-template-columns:1fr;}}
+  .module-card{border:1px solid var(--rule);border-radius:14px;padding:28px 26px;background:#fcfbf7;}
+  .module-head{padding-bottom:18px;margin-bottom:18px;border-bottom:1px solid var(--rule);}
+  .module-kicker{display:inline-block;font-family:"Satoshi",sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mid);margin-bottom:8px;}
+  .module-name{font-family:"DM Serif Display",serif;font-size:1.5rem;font-weight:700;line-height:1.15;margin:0 0 .5rem;color:var(--ink);}
+  .module-sub{font-family:"DM Serif Display",serif;font-style:italic;font-size:1rem;color:var(--mid);margin:0;}
+  .module-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:16px;}
+  .module-list li{display:flex;flex-direction:column;gap:3px;padding-left:20px;position:relative;}
+  .module-list li::before{content:"";position:absolute;left:0;top:8px;width:8px;height:8px;border-radius:2px;background:var(--ink);}
+  .module-list li strong{font-size:.98rem;font-weight:600;color:var(--ink);line-height:1.35;}
+  .module-list li span{font-size:.88rem;color:var(--mid);line-height:1.5;}
+  @media(max-width:640px){.gaps-grid{grid-template-columns:1fr;}}
+  .gap-card{display:flex;flex-direction:column;gap:0;}
+  .gap-label{font-size:13px;font-weight:400;color:var(--mid);margin-bottom:8px;}
+  .gap-title{font-size:1.15rem;font-weight:700;color:var(--ink);line-height:1.25;margin-bottom:14px;}
+  .gap-desc{font-size:15px;color:#555;line-height:1.75;margin-bottom:20px;}
+  .gap-img-wrap{background:#F5F5F5;border-radius:10px;padding:16px;margin-bottom:12px;}
+  .gap-img-wrap img{width:100%;border-radius:6px;display:block;}
+  .gap-source{font-size:11px;color:#767676;margin-top:6px;text-align:center;}
+  .gap-response{font-size:13px;color:#555;line-height:1.6;display:flex;gap:8px;align-items:flex-start;}
+  .gap-response-arrow{flex-shrink:0;color:var(--ink);font-weight:600;}
+  .exp-intro{background:#F5F5F5;border-radius:8px;padding:16px 20px;margin-bottom:20px;}
+  .exp-intro p{font-size:13px;color:var(--mid);margin:0;}
+  .exp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+  @media(max-width:560px){.exp-grid{grid-template-columns:1fr 1fr;}}
+  .exp-card{text-align:center;}
+  .exp-card img{width:100%;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.1);border:0.5px solid var(--rule);}
+  .exp-badge{display:inline-block;background:var(--orange-light);color:var(--orange);font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:2px 7px;border-radius:3px;margin-bottom:4px;border:0.5px solid #fdd5bf;}
+  .exp-label{font-size:10px;color:var(--mid);margin-top:6px;line-height:1.4;display:block;}
+  .goal-list{list-style:none;margin-top:18px;}
+  .goal-list li{display:flex;gap:12px;padding:9px 0;align-items:flex-start;}
+  
+  .check{color:#888;font-size:15px;flex-shrink:0;margin-top:2px;}
+  .goal-list li p{margin:0;font-size:14px;}
+  .impact-list{list-style:none;margin-top:20px;}
+  .impact-list li{display:flex;gap:12px;padding:12px 0;align-items:flex-start;}
+  
+  .idot{width:7px;height:7px;border-radius:50%;background:var(--orange);margin-top:9px;flex-shrink:0;}
+  .impact-list li p{margin:0;font-size:14px;}
+  .eu-section{margin-top:16px;}
+  .eu-section h3{font-family:"Satoshi",sans-serif;font-size:1rem;font-weight:700;color:var(--ink);margin-bottom:24px;}
+  .eu-grid{display:flex;gap:18px;overflow-x:auto;padding-bottom:10px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;}
+  .eu-grid::-webkit-scrollbar{height:3px;}
+  .eu-grid::-webkit-scrollbar-track{background:var(--rule);border-radius:2px;}
+  .eu-grid::-webkit-scrollbar-thumb{background:var(--orange);border-radius:2px;}
+  .eu-card{flex:0 0 150px;scroll-snap-align:start;}
+  .eu-label{font-family:"Satoshi",sans-serif;font-size:12px;font-weight:600;color:var(--ink);margin-top:10px;margin-bottom:0;}
+  .eu-desc{font-family:"Satoshi",sans-serif;font-size:11px;color:var(--mid);line-height:1.5;margin-top:3px;margin-bottom:0;}
+  .closing{padding:60px 0 48px;}
+  .closing h2{margin:0 0 14px;font-family:"Satoshi",sans-serif;}
+  .closing p{margin:0 0 20px;color:var(--mid);font-size:15px;}
+  .closing p:last-of-type{margin-bottom:0;}
+  .byline{margin-top:40px;padding-top:24px;font-size:12px;color:var(--mid);}
+  .byline strong{color:var(--ink);}
+
+
+  /* ── Part header row (Parts A–F + Dashboard in section 04) ── */
+  .part-row { display:flex; align-items:center; gap:14px; margin:48px 0 12px; }
+  .part-pill { background:#2a2a2a; color:#fff; font-family:"Satoshi", sans-serif; font-size:11px; font-weight:700; letter-spacing:0.10em; text-transform:uppercase; padding:6px 14px; border-radius:999px; flex-shrink:0; }
+  .part-title { margin:0; font-size:1.15rem; font-weight:700; color:var(--ink); line-height:1.3; }
+  .part-meta { color:var(--mid); font-size:13px; margin:0 0 12px; }
+
+  /* ── Sketchbook / hand-drawn diagram blocks ── */
+  .sketchbook {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 8px 0 0;
+    margin: 28px 0;
+    position: relative;
+    box-shadow: none;
+  }
+  .solves-badge {
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:"Satoshi", sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #8a5a00;
+    background: #fff3d9;
+    border: 1px solid #ecd9a8;
+    padding: 5px 10px 5px 8px;
+    border-radius: 999px;
+    margin-bottom: 10px;
+    text-decoration: none;
+    transition: background .15s ease;
+  }
+  .solves-badge:hover { background:#ffe9b3; }
+  .solves-badge .solves-num { background:#8a5a00; color:#fff3d9; font-size:10px; padding:1px 6px; border-radius:999px; }
+    background:
+      repeating-linear-gradient(0deg, transparent 0 39px, rgba(180,140,140,.18) 39px 40px),
+      linear-gradient(180deg, #fbf8f0 0%, #f7f1e3 100%);
+    border: 1px solid #e8e0c8;
+    border-radius: 6px;
+    padding: 28px 28px 32px;
+    margin: 32px 0;
+    position: relative;
+    box-shadow: 0 1px 0 #f0e7cf inset, 0 6px 18px -10px rgba(0,0,0,0.08);
+  }
+  .sketchbook::before { content: none; }
+  .sketch-title {
+    font-family: "Caveat", cursive;
+    font-size: 22px;
+    color: #2a2a2a;
+    margin-bottom: 14px;
+    padding-left: 0;
+  }
+  .sketch-caption {
+    font-family: "Caveat", cursive;
+    font-size: 16px;
+    color: #555;
+    margin-top: 12px;
+    padding-left: 0;
+    font-style: italic;
+  }
+  .sketchbook svg { display: block; width: 100%; height: auto; font-family: "Caveat", cursive; }
+  .sketchbook svg text { font-family: "Caveat", cursive; }
+
+  /* ── Diagram wraps ── */
+  .diagram {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 32px 24px 20px;
+    margin: 24px 0 16px;
+  }
+  .diagram svg { display: block; width: 100%; max-width: 760px; height: auto; margin: 0 auto; font-family: "Satoshi", sans-serif; }
+  .diagram-key {
+    display: flex; gap: 24px; justify-content: center;
+    margin-top: 20px; flex-wrap: wrap; font-size: 12px; color: var(--mid);
+  }
+  .diagram-key span { display: inline-flex; align-items: center; gap: 8px; }
+  .diagram-key i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; }
+  .diagram-caption {
+    text-align: center;
+    font-size: 13px;
+    color: var(--mid);
+    margin: 4px 0 0;
+    font-style: italic;
+  }
+
+  /* ── Personas mini-cards ── */
+  .personas {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin: 28px 0 16px;
+  }
+  @media(max-width:680px){ .personas{ grid-template-columns:1fr; } }
+  .persona {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 22px 20px;
+  }
+  .persona .p-role {
+    font-size: 10px;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--mid);
+    margin-bottom: 8px;
+  }
+  .persona .p-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 10px;
+  }
+  .persona .p-quote {
+    font-family: "DM Serif Display", serif;
+    font-style: italic;
+    font-size: 0.95rem;
+    color: #444;
+    line-height: 1.5;
+  }
+
+  /* ── NDA blurred-screen reveal ── */
+  .nda-block { margin: 48px 0 0; }
+  .nda-frame {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #1c1c1a;
+    aspect-ratio: 16 / 9;
+    box-shadow: 0 30px 60px -30px rgba(15,18,28,.32);
+  }
+  .nda-frame img {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: center;
+    filter: blur(14px) saturate(110%);
+    transform: scale(1.06); /* hide blur edges */
+    opacity: 0.85;
+  }
+  .nda-frame::after {
+    content: "";
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 70% 60% at 50% 50%, rgba(0,0,0,0) 0%, rgba(0,0,0,.18) 100%),
+      linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(0,0,0,0.10) 100%);
+    pointer-events: none;
+  }
+  .nda-overlay {
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 2;
+    padding: 0 24px;
+    max-width: 520px;
+    color: #fff;
+  }
+  .nda-overlay .nda-eyebrow {
+    display: inline-block;
+    font-family: "Satoshi", sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.28);
+    padding: 6px 12px;
+    border-radius: 999px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: rgba(255,255,255,0.95);
+    margin-bottom: 18px;
+  }
+  .nda-overlay h3 {
+    font-family: "Satoshi", sans-serif;
+    font-size: clamp(1.6rem, 3.2vw, 2.3rem);
+    font-weight: 700;
+    line-height: 1.15;
+    margin: 0 0 14px;
+    color: #fff;
+  }
+  .nda-overlay p {
+    font-size: 15px;
+    line-height: 1.55;
+    color: rgba(255,255,255,0.78);
+    margin: 0 0 18px;
+  }
+  .nda-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #fff;
+    color: var(--ink);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px 18px;
+    border-radius: 999px;
+    transition: transform .25s ease;
+  }
+  .nda-cta:hover { transform: translateY(-2px); }
+  .nda-caption {
+    text-align: center;
+    font-size: 13px;
+    color: var(--mid);
+    margin: 16px 0 0;
+    font-style: italic;
+  }
+
+  /* ── Real-artefact: compact link card that opens a fullscreen modal ── */
+  .artefact-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 20px 0 6px;
+    padding: 16px 20px;
+    background: #fbfaf6;
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    text-decoration: none;
+    color: var(--ink);
+    cursor: pointer;
+    transition: background .2s ease, border-color .2s ease, transform .2s ease;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+  }
+  .artefact-link:hover { background:#f6f3e9; border-color:#d8d3bf; transform:translateY(-1px); }
+  .artefact-link .al-left { display:flex; gap:14px; align-items:center; min-width:0; }
+  .artefact-link .al-icon {
+    width:40px; height:40px; flex-shrink:0;
+    border-radius:8px; background:#1c1c1a; color:#fff;
+    display:grid; place-items:center;
+  }
+  .artefact-link .al-title { font-size:14px; font-weight:600; color:var(--ink); margin:0 0 2px; }
+  .artefact-link .al-sub { font-size:12px; color:var(--mid); margin:0; }
+  .artefact-link .al-cta {
+    font-size:12px; font-weight:600; color:var(--ink);
+    display:inline-flex; align-items:center; gap:6px;
+    white-space:nowrap;
+  }
+  .artefact-link:hover .al-cta { gap:10px; }
+
+  /* Fullscreen modal */
+  .artefact-modal {
+    position: fixed; inset: 0;
+    background: rgba(20,20,18,0.92);
+    z-index: 1000;
+    display: none;
+    align-items: center; justify-content: center;
+    padding: 56px 24px 24px;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  .artefact-modal.open { display:flex; }
+  .artefact-modal-close {
+    position: absolute;
+    top: 16px; right: 16px;
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #fff;
+    display:grid; place-items:center;
+    cursor:pointer;
+    font-size:20px; line-height:1;
+    transition: background .15s ease, transform .15s ease;
+  }
+  .artefact-modal-close:hover { background: rgba(255,255,255,0.22); transform:rotate(90deg); }
+  .artefact-modal-label {
+    position:absolute; top:24px; left:24px;
+    color: rgba(255,255,255,0.78);
+    font-size: 11px; font-weight:700;
+    letter-spacing: 0.14em; text-transform: uppercase;
+  }
+  .artefact-modal-stage {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    cursor: grab;
+    border-radius: 8px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .artefact-modal-stage.grabbing { cursor: grabbing; }
+  .artefact-modal-stage::-webkit-scrollbar { width:8px; height:8px; }
+  .artefact-modal-stage::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.3); border-radius:4px; }
+  .artefact-modal-stage::-webkit-scrollbar-track { background:transparent; }
+  .artefact-modal-stage img {
+    display: block;
+    max-width: none;
+    height: auto;
+    user-select: none;
+    pointer-events: none;
+    background:#fff;
+    border-radius: 4px;
+  }
+  .artefact-modal-hint {
+    position:absolute; bottom:16px; left:50%; transform:translateX(-50%);
+    color: rgba(255,255,255,0.62);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+  }
+
+  /* ── Next case study CTA ── */
+  .next-case {
+    display:flex; align-items:center; justify-content:space-between;
+    margin-top:48px; padding:28px 32px;
+    background:var(--ink); color:var(--paper);
+    text-decoration:none;
+    border-radius:12px;
+    gap:24px;
+    transition:transform .25s ease, background .25s ease;
+  }
+  .next-case:hover { transform:translateY(-2px); background:#000; }
+  .next-case .nc-eyebrow {
+    font-size:11px; letter-spacing:0.12em; text-transform:uppercase;
+    opacity:0.62; margin:0 0 6px;
+  }
+  .next-case .nc-title {
+    font-size:1.4rem; font-weight:700; line-height:1.2; margin:0; color:var(--paper);
+  }
+  .next-case .nc-meta {
+    font-size:12px; opacity:0.7; margin:6px 0 0; color:var(--paper);
+  }
+  .next-case .nc-arrow {
+    width:48px; height:48px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.12);
+    display:grid; place-items:center;
+    flex-shrink:0;
+    transition:transform .25s ease, background .25s ease;
+  }
+  .next-case:hover .nc-arrow { transform:translate(3px,-3px); background:rgba(255,255,255,0.22); }
+
+  /* ── Accessibility ── */
+  :focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 3px;
+    border-radius: 3px;
+  }
+  .left-nav a:focus-visible {
+    outline-offset: -2px;
+  }
+  .skip-link {
+    position: absolute;
+    top: -40px; left: 12px;
+    background: var(--ink); color: var(--paper);
+    padding: 10px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 13px; font-weight: 600;
+    z-index: 1000;
+    transition: top 0.2s ease;
+  }
+  .skip-link:focus { top: 12px; }
+
+  .hero-icon{width:64px;height:64px;border-radius:14px;background:#111;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff;margin-bottom:48px;font-family:"Satoshi",sans-serif;}
+  .hero-cols{display:grid;grid-template-columns:1fr 200px;gap:48px;align-items:start;}
+  @media(max-width:680px){.hero-cols{grid-template-columns:1fr;}}
+  .hero-title{font-family:"Satoshi",sans-serif;font-size:13px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mid);margin-bottom:18px;line-height:1.2;}
+  .hero-hook{font-family:"DM Serif Display",serif;font-size:clamp(2rem,4.4vw,2.9rem);font-weight:700;line-height:1.18;color:var(--ink);margin:0 0 28px;max-width:680px;text-wrap:balance;}
+  .hero-badge{display:inline-flex;align-items:center;gap:8px;font-family:"Satoshi",sans-serif;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--navy);background:var(--navy-soft);padding:7px 14px;border-radius:999px;white-space:nowrap;margin-bottom:20px;}
+  .hero-sub{font-family:"Satoshi",sans-serif;font-size:clamp(1.05rem,1.8vw,1.25rem);font-weight:400;line-height:1.55;color:var(--mid);margin:-12px 0 28px;max-width:620px;}
+  .hero-body{font-size:16px;line-height:1.75;color:#555;margin-bottom:16px;}
+  .hero-body strong{color:var(--ink);font-weight:600;}
+  .hero-right{padding-top:4px;}
+  .hero-right-label{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:4px;}
+  .hero-right-value{font-size:14px;color:#555;margin-bottom:20px;}
+
+  /* ── Project at a glance — editorial split layout ── */
+  .scope-section {
+    padding: 80px 0 72px;
+    background: #1c1c1a;
+    color: #fff;
+    border: none;
+  }
+  .scope-section .chapter-num { color:#fff !important; background:rgba(255,255,255,0.12) !important; }
+  .scope-section .chapter-line { background: rgba(255,255,255,0.12) !important; }
+  .scope-lede {
+    margin: 24px 0 56px;
+    max-width: 760px;
+    font-family: "Satoshi", sans-serif;
+    font-size: clamp(1.35rem, 2.4vw, 1.8rem);
+    font-weight: 500;
+    line-height: 1.35;
+    color: #fff;
+    text-wrap: balance;
+  }
+  .scope-lede em {
+    font-style: normal;
+    color: #BBD3FB;
+    background: none;
+    padding: 0;
+    border-bottom: 2px solid #BBD3FB;
+  }
+  .scope-split {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 72px;
+    align-items: start;
+    padding-top: 32px;
+    border-top: 1px solid rgba(255,255,255,0.12);
+  }
+  @media(max-width:760px){
+    .scope-split { grid-template-columns: 1fr; gap: 40px; }
+  }
+
+  /* Left side: key numbers stacked */
+  .scope-numbers {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+  .scope-num {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 24px;
+    align-items: baseline;
+    padding-bottom: 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.10);
+  }
+  .scope-num:last-child { border-bottom: none; padding-bottom: 0; }
+  .scope-num-value {
+    font-family: "Satoshi", sans-serif;
+    font-size: clamp(2rem, 3.2vw, 2.8rem);
+    font-weight: 700;
+    color: #fff;
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .scope-num-label {
+    font-family: "Satoshi", sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    display: block;
+    margin-bottom: 6px;
+  }
+  .scope-num-desc {
+    font-size: 13px;
+    color: rgba(255,255,255,0.62);
+    line-height: 1.55;
+    display: block;
+  }
+
+  /* Right side: project meta as a definition list */
+  .scope-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px 32px;
+  }
+  @media(max-width:760px){.scope-meta{grid-template-columns:1fr 1fr;gap:24px;}}
+  .scope-meta-cell { padding: 0; }
+  .scope-meta-label {
+    font-family: "Satoshi", sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    margin: 0 0 8px;
+  }
+  .scope-meta-value {
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    margin: 0 0 4px;
+    line-height: 1.3;
+  }
+  .scope-meta-sub {
+    font-size: 12.5px;
+    color: rgba(255,255,255,0.55);
+    margin: 0;
+    line-height: 1.45;
+  }
+  .scope-outcome { display: none; } /* moved into the lede */
+
+  /* ── Impact table (section 05) ── */
+  .impact-table {
+    width: 100%;
+    margin: 32px 0 24px;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  .impact-table thead th {
+    font-family: "Satoshi", sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--mid);
+    text-align: left;
+    padding: 0 16px 14px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .impact-table thead th:first-child { padding-left: 0; }
+  .impact-table thead th:last-child  { padding-right: 0; }
+  .impact-table tbody td {
+    padding: 18px 16px;
+    vertical-align: top;
+    border-bottom: 1px solid var(--rule);
+    line-height: 1.5;
+    color: #444;
+  }
+  .impact-table tbody td:first-child {
+    padding-left: 0;
+    color: #c94040;
+    font-style: italic;
+  }
+  .impact-table tbody td:nth-child(2) {
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .impact-table tbody td:last-child {
+    padding-right: 0;
+    color: #555;
+  }
+  .impact-table tbody tr:last-child td { border-bottom: none; }
+  @media(max-width:760px){
+    .impact-table thead { display: none; }
+    .impact-table, .impact-table tbody, .impact-table tr, .impact-table td { display: block; width: 100%; }
+    .impact-table tr { padding: 20px 0; border-bottom: 1px solid var(--rule); }
+    .impact-table tbody td { padding: 4px 0; border: none; }
+    .impact-table tbody td:first-child::before { content: "Before — "; color: var(--mid); font-style: normal; font-weight: 600; letter-spacing: 0.04em; }
+    .impact-table tbody td:nth-child(2)::before { content: "After — "; color: var(--mid); font-weight: 600; letter-spacing: 0.04em; }
+    .impact-table tbody td:last-child::before { content: "Impact — "; color: var(--mid); font-weight: 600; letter-spacing: 0.04em; }
+  }
+
+  .measure-note {
+    margin: 36px 0 0;
+    padding: 24px 28px;
+    background: #fbfaf6;
+    border-left: 3px solid #c97a06;
+    border-radius: 0 8px 8px 0;
+  }
+  .measure-label {
+    font-family: "Satoshi", sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: #8a5a00;
+    margin: 0 0 12px;
+  }
+  .measure-note ul {
+    margin: 0;
+    padding: 0 0 0 18px;
+    list-style: none;
+  }
+  .measure-note ul li {
+    position: relative;
+    padding-left: 4px;
+    font-size: 14px;
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 6px;
+  }
+  .measure-note ul li::before {
+    content: "→";
+    position: absolute;
+    left: -18px;
+    color: #c97a06;
+    font-weight: 700;
+  }
+
+  /* ── Outcome section, plain-spoken ── */
+  .outcome-h3 {
+    font-family: "Satoshi", sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 36px 0 8px;
+  }
+  .outcome-list, .outcome-checks {
+    list-style: none;
+    padding: 0;
+    margin: 8px 0 0;
+  }
+  .outcome-list li, .outcome-checks li {
+    position: relative;
+    padding: 10px 0 10px 28px;
+    border-bottom: 1px solid var(--rule);
+    line-height: 1.6;
+    color: #444;
+    font-size: 15px;
+  }
+  .outcome-list li:last-child, .outcome-checks li:last-child { border-bottom: none; }
+  .outcome-list li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    top: 10px;
+    color: #3d7a0e;
+    font-weight: 700;
+  }
+  .outcome-checks { counter-reset: chk; }
+  .outcome-checks li::before {
+    counter-increment: chk;
+    content: counter(chk);
+    position: absolute;
+    left: 0;
+    top: 12px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: center;
+    line-height: 20px;
+  }
+  .outcome-checks li { padding-left: 36px; }
+  .outcome-list strong, .outcome-checks strong { color: var(--ink); font-weight: 600; }
+
+  /* ── Reflection — numbered lessons ── */
+  .reflect-list { margin: 40px 0 8px; display: flex; flex-direction: column; gap: 4px; }
+  .reflect-item { display: grid; grid-template-columns: 70px 1fr; gap: 8px 28px; padding: 28px 0; border-top: 1px solid var(--rule); align-items: start; }
+  .reflect-item:first-child { border-top: none; }
+  .reflect-num { font-family: "Satoshi", sans-serif; font-size: 2.1rem; font-weight: 600; line-height: 1; color: var(--rule); letter-spacing: -0.02em; }
+  .reflect-title { font-family: "DM Serif Display", serif; font-size: 1.3rem; font-weight: 700; line-height: 1.25; margin: 0 0 .55rem; color: var(--ink); }
+  .reflect-body { font-size: 15px; line-height: 1.65; color: var(--mid); margin: 0; max-width: 620px; }
+  @media(max-width:640px){ .reflect-item{ grid-template-columns: 1fr; gap: 6px; } .reflect-num{ font-size: 1.6rem; } }
+
+  /* ── Section 04 hero screen treatment ── */
+  .hero-screen-block {
+    margin: 32px 0 48px;
+    background: linear-gradient(180deg, #1c1c1a 0%, #1c1c1a 200px, transparent 200px);
+    padding: 40px 32px 32px;
+    border-radius: 12px;
+    position: relative;
+  }
+  .hero-screen-eyebrow {
+    color: #BBD3FB;
+    font-family: "Satoshi", sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    margin: 0 0 12px;
+  }
+  .hero-screen-title {
+    color: #fff;
+    font-family: "Satoshi", sans-serif;
+    font-size: clamp(1.4rem, 2.4vw, 1.8rem);
+    font-weight: 700;
+    line-height: 1.25;
+    margin: 0 0 12px;
+    max-width: 720px;
+  }
+  .hero-screen-sub {
+    color: rgba(255,255,255,0.72);
+    font-size: 15px;
+    line-height: 1.6;
+    margin: 0 0 20px;
+    max-width: 680px;
+  }
+  .hero-screen-sub strong { color: #fff; font-weight: 600; }
+  .hero-screen-points {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 28px;
+    max-width: 700px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .hero-screen-points li {
+    color: rgba(255,255,255,0.78);
+    font-size: 14.5px;
+    line-height: 1.55;
+    padding-left: 22px;
+    position: relative;
+  }
+  .hero-screen-points li::before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    color: #BBD3FB;
+    font-weight: 700;
+  }
+  .hero-screen-points li strong { color: #fff; font-weight: 600; }
+  .hero-screen-points li em { font-style: normal; background: rgba(255,243,217,0.18); padding: 0 4px; border-radius: 2px; color: #fff; }
+  .hero-screen-frame {
+    background: #fbfaf6;
+    border: 1px solid #e8e0c8;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 24px 60px -20px rgba(0,0,0,0.4);
+  }
+  .hero-screen-frame svg { display:block; width:100%; height:auto; }
+  .hero-screen-caption {
+    color: var(--ink);
+    font-size: 13px;
+    margin: 16px 4px 0;
+    font-style: italic;
+  }
+
+  /* Compact gallery for remaining 5 screens */
+  .gallery-intro {
+    margin: 48px 0 8px;
+    font-family: "Satoshi", sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: var(--mid);
+  }
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 28px;
+    margin-top: 16px;
+  }
+  .gallery-card {
+    background: #fbfaf6;
+    border: 1px solid #e8e0c8;
+    border-radius: 8px;
+    padding: 20px;
+  }
+  .gallery-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 4px;
+    flex-wrap: wrap;
+  }
+  .gallery-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0;
+  }
+  .gallery-card .solves-badge { margin: 0; }
+  .gallery-card svg { display:block; width:100%; height:auto; margin-top: 14px; }
+  .gallery-card .sketch-caption { margin: 12px 4px 0; font-size: 12.5px; }
+
+  /* ── V1 vs V2 before/after cards ── */
+  .ba-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    margin-top: 20px;
+  }
+  .ba-card {
+    background: #fbfaf6;
+    border: 1px solid #e8e0c8;
+    border-radius: 10px;
+    padding: 24px;
+  }
+  .ba-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px dashed #d8d3bf;
+  }
+  .ba-title {
+    font-family: "Satoshi", sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0;
+  }
+  .ba-card .solves-badge { margin: 0; }
+  .ba-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+  @media(max-width:760px){.ba-pair{grid-template-columns:1fr;gap:20px;}}
+  .ba-fig {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .ba-fig svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+  }
+  .ba-tag {
+    font-family: "Satoshi", sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 4px;
+    align-self: flex-start;
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .ba-v1 .ba-tag {
+    background: #2a2a2a;
+    color: #ff8585;
+  }
+  .ba-v2 .ba-tag {
+    background: #eeece2;
+    color: #2a2a2a;
+  }
+  .ba-flaws, .ba-wins {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .ba-flaws li, .ba-wins li {
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: #555;
+    padding-left: 18px;
+    position: relative;
+  }
+  .ba-flaws li::before {
+    content: "✗";
+    position: absolute;
+    left: 0;
+    color: #c94040;
+    font-weight: 700;
+  }
+  .ba-wins li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #3d7a0e;
+    font-weight: 700;
+  }
+  .ba-flaws li strong, .ba-wins li strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+
+  /* ── Section 03 walkthrough — flow-bar + screen-block (doc style) ── */
+  .flow-bar { display:flex; align-items:center; gap:8px; margin:8px 0 40px; flex-wrap:wrap; }
+  .flow-step { font-family:"Satoshi",sans-serif; font-size:.8rem; padding:6px 15px; border-radius:999px; background:var(--rule); color:var(--mid); white-space:nowrap; }
+  .flow-step.active { background:#1C1C1A; color:#fff; font-weight:600; }
+  .flow-arrow { color:#cfccc4; font-size:1rem; }
+  .proc-track{display:flex;align-items:flex-start;margin:16px 0 48px;position:relative;}
+  .proc-track::before{content:"";position:absolute;top:17px;left:8%;right:8%;height:2px;background:var(--rule);z-index:0;}
+  .proc-step{flex:1;display:flex;flex-direction:column;align-items:center;gap:11px;text-align:center;position:relative;z-index:1;}
+  .proc-node{width:36px;height:36px;border-radius:50%;background:#8a5a00;color:#fff;display:flex;align-items:center;justify-content:center;font-family:"Satoshi",sans-serif;font-weight:700;font-size:.95rem;border:4px solid var(--paper);box-shadow:0 0 0 1px var(--rule);}
+  .proc-label{font-family:"Satoshi",sans-serif;font-size:.8rem;font-weight:500;color:var(--mid);line-height:1.3;max-width:110px;}
+  .proc-label b{color:var(--ink);font-weight:600;}
+  @media(max-width:680px){.proc-track{flex-wrap:wrap;gap:20px 0;}.proc-track::before{display:none;}.proc-step{flex:0 0 33%;}}
+  .screen-block { margin-bottom:3.5rem; }
+  .screen-meta { margin-bottom:1rem; }
+  .part-badge { display:inline-block; background:#8a5a00; color:#fff; font-size:.72rem; font-family:"Satoshi",sans-serif; font-weight:600; padding:4px 13px; border-radius:999px; margin-bottom:.7rem; letter-spacing:.04em; }
+  .screen-title { font-family:"DM Serif Display",serif; font-size:1.35rem; font-weight:700; margin:0 0 .35rem; color:var(--ink); line-height:1.2; }
+  .screen-note { font-size:.95rem; color:var(--mid); margin:0; line-height:1.55; max-width:680px; }
+  .walkthrough-heading { font-family:"Satoshi",sans-serif; font-size:1.25rem; font-weight:700; margin:8px 0 4px; color:var(--ink); }
+  .bridge{max-width:640px;margin:40px 0 6px;font-family:"DM Serif Display",serif;font-style:italic;font-size:1.12rem;line-height:1.55;color:var(--ink);}
+
+  /* ── Dashboard rationale grid (why each panel earns its place) ── */
+  .rationale-head{font-family:"Satoshi",sans-serif;font-size:1.1rem;font-weight:700;color:var(--ink);margin:8px 0 4px;}
+  .rationale-sub{font-size:.95rem;color:var(--mid);margin:0 0 22px;max-width:680px;line-height:1.55;}
+  .rationale-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin:0 0 28px;}
+  @media(max-width:720px){.rationale-grid{grid-template-columns:1fr;}}
+  .rationale-card{border:1px solid var(--rule);border-radius:12px;padding:20px 22px;background:#fff;}
+  .rc-top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:12px;}
+  .rc-name{font-family:"DM Serif Display",serif;font-size:1.06rem;font-weight:700;color:var(--ink);margin:0;}
+  .rc-tag{font-family:"Satoshi",sans-serif;font-size:.66rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#8a5a00;background:#fbf3e2;border:1px solid #ecddb8;padding:3px 9px;border-radius:999px;white-space:nowrap;}
+  .rc-row{display:block;margin:0 0 9px;font-size:.9rem;line-height:1.5;color:var(--mid);}
+  .rc-row:last-child{margin-bottom:0;}
+  .rc-row b{display:block;font-family:"Satoshi",sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#9a9486;margin-bottom:1px;}
+  .rc-row .q{color:var(--ink);font-style:italic;font-family:"DM Serif Display",serif;}
+  .rationale-cut{border-left:3px solid #1c1c1a;background:#faf9f6;border-radius:0 10px 10px 0;padding:16px 22px;margin:0 0 8px;max-width:760px;}
+  .rationale-cut p{margin:0;font-size:.95rem;line-height:1.6;color:var(--ink);}
+  .rationale-cut b{font-weight:700;}
+  /* compact numbered key replacing the heavy rationale grid */
+  .dash-key{list-style:none;margin:0 0 26px;padding:0;display:flex;flex-direction:column;gap:0;max-width:780px;}
+  .dash-key li{display:grid;grid-template-columns:30px 190px 1fr;gap:6px 16px;align-items:baseline;padding:13px 0;border-top:1px solid var(--rule);}
+  .dash-key li:first-child{border-top:none;}
+  .dash-key .dk-n{width:22px;height:22px;border-radius:50%;background:#1c1c1a;color:#fff;font-family:"Satoshi",sans-serif;font-size:.72rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;}
+  .dash-key .dk-b{font-size:.95rem;}
+  .dash-key .dk-b b{font-weight:700;color:var(--ink);}
+  .dash-key .dk-b i{display:block;font-style:normal;font-family:"Satoshi",sans-serif;font-size:.66rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#9a9486;margin-top:2px;}
+  .dash-key .dk-t{font-size:.92rem;line-height:1.5;color:var(--mid);}
+  @media(max-width:640px){.dash-key li{grid-template-columns:24px 1fr;}.dash-key .dk-t{grid-column:2;}}
+  .diagnosis{background:#f3ecda;border:1px solid #e6dcc0;border-left:4px solid #8a5a00;border-radius:12px;padding:26px 30px;margin:40px 0 20px;max-width:760px;}
+  .diagnosis .diag-label{display:block;font-family:"Satoshi",sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#8a5a00;margin-bottom:14px;}
+  .diagnosis p{font-size:1rem;line-height:1.65;color:var(--ink);margin:0 0 12px;max-width:none;}
+  .diagnosis p:last-child{margin-bottom:0;}
+  .diagnosis .diag-lead{font-family:"DM Serif Display",serif;font-style:italic;font-size:1.08rem;color:var(--ink);}
+
+  
+</style>
+</head>
+<body>
+<a href="#t-intro" class="skip-link">Skip to content</a>
+<nav class="left-nav" aria-label="Case study sections">
+  <a href="../index.html" class="nav-brand">Home</a>
+  <a href="#t-intro">Intro</a>
+  <a href="#t-problem">Problem</a>
+  <a href="#t-systems">Systems</a>
+  <a href="#t-screens">Diagnosis</a>
+  <a href="#t-walkthrough">Process</a>
+  <a href="#t-outcomes">Outcomes</a>
+  <a href="#t-reflection">Reflection</a>
+</nav>
+<div class="hero" id="t-intro">
+  <div class="hero-icon">T</div>
+  <div class="hero-cols">
+    <div class="hero-left">
+      <span class="hero-badge">Tax Filing Platform</span>
+      <h1 class="hero-hook">My first version was rejected in the room. It&rsquo;s the best thing that happened to the product.</h1>
+      <p class="hero-sub">A cloud TDS/TCS compliance tool that folds six manual finance processes into one &mdash; and the rejected V1 that taught me how.</p>
+      <p class="hero-body">When we walked the client through V1, they only needed one screen to start counting off what we&rsquo;d gotten wrong &mdash; dark mode, the wrong navigation, input files we hadn&rsquo;t included, a single challan type where they used four, no approval step, a whole module missing. They knew the 100-page compliance spec by heart. We&rsquo;d skimmed it. The gaps took them seconds to find.</p>
+      <p class="hero-body"><strong>The product</strong> is a cloud TDS/TCS compliance tool for corporate finance teams &mdash; it pulls six separate manual processes into one place. I was the only designer on it, responsible for the whole experience.</p>
+      <p class="hero-body">Here&rsquo;s how the second version got approved.</p>
+    </div>
+    <div class="hero-right">
+      <p class="hero-right-label">Role</p>
+      <p class="hero-right-value">UX/UI Designer &middot; Solo</p>
+
+      <p class="hero-right-label">Client</p>
+      <p class="hero-right-value">Big Four consulting firm</p>
+
+      <p class="hero-right-label">Domain</p>
+      <p class="hero-right-value">Enterprise tax compliance</p>
+
+      <p class="hero-right-label" style="color:var(--mid);">Platform</p>
+      <p class="hero-right-value" style="color:var(--mid);">Cloud SaaS</p>
+
+      <p class="hero-right-value" style="margin-top:24px;">2024</p>
+    </div>
+  </div>
+</div>
+
+<section id="t-problem" class="section-anchor">
+  <div class="wrap">
+    <div class="chapter"><span class="chapter-num">01 &mdash; The problem</span><div class="chapter-line"></div></div>
+    <h2>Manual work, scattered across disconnected tools.</h2>
+    <p>Every large Indian corporate has to deduct TDS from its vendor payments, deposit it with the government, file quarterly returns, hand out certificates, and reconcile the whole thing at year-end. Every step is required by law, and every slip invites a notice or a penalty. Until this product existed, finance teams did all of it by hand &mdash; spreadsheets on one side, government portals on the other, and nothing connecting the two.</p>
+
+    <div class="pullquote"><p>&ldquo;Every month we pull data from several different input files, cross-check it by hand, retype it into the government portal &mdash; and still find errors at the year-end audit.&rdquo;</p></div>
+
+    <div class="sketchbook" aria-label="Hand-drawn sketch showing scattered input files connected by dashed lines feeding into the government portal, with a manual reconciliation table below">
+      <div class="sketch-title">The &lsquo;before&rsquo; — how compliance actually looked</div>
+      <svg viewBox="0 0 820 420" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="rough-b"><feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="2" seed="5"/><feDisplacementMap in="SourceGraphic" scale="1.4"/></filter>
+        </defs>
+        <g filter="url(#rough-b)">
+
+          <!-- 4 file cards with slight rotation, stacked horizontally -->
+          <g transform="translate(40,80) rotate(-3)">
+            <rect width="130" height="76" rx="4" fill="#fff" stroke="#2a2a2a" stroke-width="1.4"/>
+            <line x1="14" y1="42" x2="116" y2="42" stroke="#d4d4d4" stroke-width=".8"/>
+            <line x1="14" y1="54" x2="116" y2="54" stroke="#d4d4d4" stroke-width=".8"/>
+            <line x1="14" y1="66" x2="116" y2="66" stroke="#d4d4d4" stroke-width=".8"/>
+          </g>
+          <g transform="translate(190,90) rotate(2)">
+            <rect width="130" height="76" rx="4" fill="#fff" stroke="#2a2a2a" stroke-width="1.4"/>
+            <line x1="14" y1="42" x2="116" y2="42" stroke="#d4d4d4" stroke-width=".8"/>
+            <line x1="14" y1="54" x2="116" y2="54" stroke="#d4d4d4" stroke-width=".8"/>
+            <line x1="14" y1="66" x2="116" y2="66" stroke="#d4d4d4" stroke-width=".8"/>
+          </g>
+          <g transform="translate(340,80) rotate(-2)">
+            <rect width="130" height="76" rx="4" fill="#fff" stroke="#2a2a2a" stroke-width="1.4"/>
+            <line x1="14" y1="42" x2="116" y2="42" stroke="#d4d4d4" stroke-width=".8"/>
+            <line x1="14" y1="54" x2="116" y2="54" stroke="#d4d4d4" stroke-width=".8"/>
+            <line x1="14" y1="66" x2="116" y2="66" stroke="#d4d4d4" stroke-width=".8"/>
+          </g>
+
+
+          <!-- TIN-NSDL portal box (highlighted in orange) -->
+          <g transform="translate(660,80)">
+            <rect width="130" height="92" rx="4" fill="#fff" stroke="#c97a06" stroke-width="2"/>
+            <line x1="14" y1="58" x2="116" y2="58" stroke="#e8d4b4" stroke-width=".8"/>
+            <line x1="14" y1="70" x2="116" y2="70" stroke="#e8d4b4" stroke-width=".8"/>
+            <line x1="14" y1="82" x2="116" y2="82" stroke="#e8d4b4" stroke-width=".8"/>
+          </g>
+
+          <!-- Dashed red connectors between cards -->
+          <path d="M170 130 C 180 130, 180 130, 195 132" fill="none" stroke="#c0392b" stroke-width="1.6" stroke-dasharray="5 4"/>
+          <path d="M320 132 C 330 130, 330 130, 345 130" fill="none" stroke="#c0392b" stroke-width="1.6" stroke-dasharray="5 4"/>
+          <path d="M470 130 C 540 124, 600 124, 660 124" fill="none" stroke="#c97a06" stroke-width="1.6" stroke-dasharray="5 4"/>
+
+          <!-- Bottom reconciliation table -->
+          <rect x="14" y="220" width="792" height="138" rx="4" fill="#fff" stroke="#2a2a2a" stroke-width="1.4"/>
+          <line x1="14" y1="246" x2="806" y2="246" stroke="#2a2a2a"/>
+          <line x1="14" y1="282" x2="806" y2="282" stroke="#d4d4d4" stroke-width=".8"/>
+          <line x1="14" y1="318" x2="806" y2="318" stroke="#d4d4d4" stroke-width=".8"/>
+          <line x1="14" y1="354" x2="806" y2="354" stroke="#d4d4d4" stroke-width=".8"/>
+
+          <!-- vertical separators in table -->
+          <line x1="200" y1="246" x2="200" y2="358" stroke="#d4d4d4" stroke-width=".8"/>
+          <line x1="360" y1="246" x2="360" y2="358" stroke="#d4d4d4" stroke-width=".8"/>
+          <line x1="520" y1="246" x2="520" y2="358" stroke="#d4d4d4" stroke-width=".8"/>
+          <line x1="680" y1="246" x2="680" y2="358" stroke="#d4d4d4" stroke-width=".8"/>
+        </g>
+
+        <!-- file labels — handwritten -->
+        <g font-family="Caveat, cursive" fill="#2a2a2a">
+          <text x="105" y="105" text-anchor="middle" font-size="14" font-weight="600" transform="rotate(-3 105 105)">Input file</text>
+          <text x="255" y="115" text-anchor="middle" font-size="14" font-weight="600" transform="rotate(2 255 115)">Input file</text>
+          <text x="405" y="105" text-anchor="middle" font-size="14" font-weight="600" transform="rotate(-2 405 105)">Input file</text>
+          <text x="725" y="105" text-anchor="middle" font-size="14" font-weight="600" fill="#c97a06">Govt. portal</text>
+          <text x="725" y="130" text-anchor="middle" font-size="11" fill="#a06500" font-style="italic">manually retyping</text>
+          <text x="725" y="146" text-anchor="middle" font-size="11" fill="#a06500" font-style="italic">numbers here !</text>
+        </g>
+
+        <!-- Annotations: "4 separate files" pointing down to the cluster -->
+        <g font-family="Caveat, cursive">
+          <text x="222" y="50" font-size="14" fill="#c0392b" font-style="italic">many input files</text>
+          <path d="M280 56 C 280 64, 280 64, 280 76" fill="none" stroke="#c0392b" stroke-width="1.2"/>
+
+          <text x="615" y="50" font-size="14" fill="#c0392b" font-style="italic">manual retyping</text>
+          <path d="M650 56 C 660 64, 670 70, 680 80" fill="none" stroke="#c0392b" stroke-width="1.2"/>
+        </g>
+
+        <!-- table heading -->
+        <text x="30" y="240" font-family="Caveat, cursive" font-size="16" font-weight="700" fill="#2a2a2a">Manual reconciliation — done in Excel, row by row</text>
+
+        <!-- table headers + rows -->
+        <g font-family="Caveat, cursive" fill="#666">
+          <text x="30"  y="268" font-size="13" font-style="italic">Vendor Name</text>
+          <text x="216" y="268" font-size="13" font-style="italic">Input data</text>
+          <text x="376" y="268" font-size="13" font-style="italic">TDS Return</text>
+          <text x="536" y="268" font-size="13" font-style="italic">Form 26AS</text>
+          <text x="696" y="268" font-size="13" font-style="italic">Status</text>
+        </g>
+        <g font-family="Caveat, cursive" fill="#2a2a2a" font-size="14">
+          <text x="30"  y="304">ABC Pvt Ltd</text>
+          <text x="216" y="304">₹ 2,29,896</text>
+          <text x="376" y="304">₹ 2,29,896</text>
+          <text x="536" y="304">₹ 2,19,000</text>
+          <text x="696" y="304" fill="#c0392b" font-weight="600">⚠ mismatch</text>
+
+          <text x="30"  y="340">XYZ Ltd</text>
+          <text x="216" y="340">₹ 55,479</text>
+          <text x="376" y="340">₹ 55,479</text>
+          <text x="536" y="340">₹ 55,479</text>
+          <text x="696" y="340" fill="#3d7a0e" font-weight="600">✓ ok</text>
+
+          <text x="30" y="376" fill="#888" font-size="13" font-style="italic">9,998 more rows…</text>
+        </g>
+
+        <!-- Bottom annotation -->
+        <path d="M14 396 L 806 396" stroke="#c0392b" stroke-width="1.2" stroke-dasharray="5 4"/>
+        <text x="14" y="412" font-family="Caveat, cursive" font-size="14" fill="#c0392b" font-style="italic">Mismatch found 6 months later — during annual audit</text>
+      </svg>
+      <p class="sketch-caption">Many input files, one government portal, ten thousand rows of guesswork. Six months later: a notice.</p>
+    </div>
+
+    <div class="gaps-grid">
+      <div class="gap-card">
+        <h3 class="gap-title">Scattered across many sources.</h3>
+        <p class="gap-desc">Several different input files, each maintained by a different person in a different place, with no single source of truth.</p>
+      </div>
+      <div class="gap-card">
+        <h3 class="gap-title">Manual TDS verification.</h3>
+        <p class="gap-desc">Every transaction cross-checked by hand. One wrong PAN, one missed LDC certificate &mdash; the deduction was wrong before calculation even started.</p>
+      </div>
+      <div class="gap-card">
+        <h3 class="gap-title">Challan retyped into the portal.</h3>
+        <p class="gap-desc">Calculated in Excel, retyped into TIN-NSDL. The same number entered twice &mdash; errors introduced at the boundary between the tool and the government.</p>
+      </div>
+      <div class="gap-card">
+        <h3 class="gap-title">10,000 rows reconciled by hand.</h3>
+        <p class="gap-desc">Expense ledger vs TDS return vs Form 26AS &mdash; matched manually in Excel, row by row. Mismatches surfaced six months later, at the annual audit.</p>
+      </div>
+    </div>
+    <p class="bridge">Before I drew anything, I had to understand the whole system &mdash; not just the screen in front of me.</p>
+  </div>
+</section>
+
+<section id="t-systems" class="section-anchor">
+  <div class="wrap">
+    <div class="chapter"><span class="chapter-num">02 &mdash; Understand the system before I drew a screen</span><div class="chapter-line"></div></div>
+    <h2>Understand the system before I drew a screen.</h2>
+    <p>So before any UI, I mapped the whole product &mdash; every module, every input file, every output it had to produce. The sitemap and the user journey became a kind of contract between me and the dev team: here&rsquo;s what we&rsquo;re building, and here&rsquo;s how the pieces fit.</p>
+
+    <div class="sketchbook" aria-label="Hand-drawn sitemap of the platform">
+      <div class="sketch-title">Sitemap — the platform as a system</div>
+      <svg viewBox="0 0 820 460" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="rough-1"><feTurbulence type="fractalNoise" baseFrequency="0.025" numOctaves="2" seed="3"/><feDisplacementMap in="SourceGraphic" scale="0.7"/></filter>
+          <marker id="sk-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0,0 L10,5 L0,10 z" fill="#2a2a2a"/>
+          </marker>
+        </defs>
+        <g filter="url(#rough-1)" stroke="#2a2a2a" stroke-width="1.2" fill="none">
+          <!-- Top node: Login -->
+          <rect x="350" y="14" width="120" height="36" rx="6" fill="#fff"/>
+          <!-- Connector down -->
+          <path d="M410 52 L410 80" marker-end="url(#sk-arr)"/>
+          <!-- Dashboard node -->
+          <rect x="320" y="84" width="180" height="46" rx="6" fill="#fffae9"/>
+          <!-- Branch arrows -->
+          <path d="M380 132 C 360 160, 230 160, 200 184" marker-end="url(#sk-arr)"/>
+          <path d="M440 132 C 460 160, 600 160, 620 184" marker-end="url(#sk-arr)"/>
+          <!-- LEFT MODULE: ExpenseSite -->
+          <rect x="60" y="186" width="280" height="248" rx="8" fill="#f3ecda" stroke="#2a2a2a" stroke-width="1.4"/>
+          <!-- module 1 item rows -->
+          <rect x="78" y="244" width="240" height="24" rx="3" fill="#fff"/>
+          <rect x="78" y="272" width="240" height="24" rx="3" fill="#fff"/>
+          <rect x="78" y="300" width="240" height="24" rx="3" fill="#fff"/>
+          <rect x="78" y="328" width="240" height="24" rx="3" fill="#fff"/>
+          <rect x="78" y="356" width="240" height="24" rx="3" fill="#fff"/>
+          <rect x="78" y="384" width="240" height="24" rx="3" fill="#fff"/>
+          <rect x="78" y="412" width="240" height="24" rx="3" fill="#fff"/>
+          <!-- RIGHT MODULE: Form 26AS -->
+          <rect x="480" y="186" width="280" height="218" rx="8" fill="#f3ecda" stroke="#2a2a2a" stroke-width="1.4"/>
+          <rect x="496" y="244" width="248" height="24" rx="3" fill="#fff"/>
+          <rect x="496" y="272" width="248" height="24" rx="3" fill="#fff"/>
+          <rect x="496" y="300" width="248" height="24" rx="3" fill="#fff"/>
+          <rect x="496" y="328" width="248" height="24" rx="3" fill="#fff"/>
+          <rect x="496" y="356" width="248" height="24" rx="3" fill="#fff"/>
+          <!-- Bottom: connector to Reports -->
+          <path d="M620 408 C 620 432, 480 442, 410 442" marker-end="url(#sk-arr)"/>
+          <path d="M200 438 C 280 442, 380 442, 410 442" marker-end="url(#sk-arr)"/>
+        </g>
+
+        <!-- All text rendered OUTSIDE the rough filter for full readability, no bold -->
+        <g font-family="Caveat, cursive" fill="#2a2a2a">
+          <text x="410" y="38" text-anchor="middle" font-size="17">Login + roles</text>
+
+          <text x="410" y="103" text-anchor="middle" font-size="11" fill="#888" letter-spacing="0.10em">CFO DASHBOARD</text>
+          <text x="410" y="122" text-anchor="middle" font-size="18">Compliance overview</text>
+
+          <text x="80" y="212" font-size="15">Module 1 — Expense Side</text>
+          <text x="80" y="228" font-size="13" fill="#777" font-style="italic">tax on what we pay out</text>
+
+          <g font-size="15">
+            <text x="92" y="261">1.  Master data</text>
+            <text x="92" y="289">2.  Transactions</text>
+            <text x="92" y="317">3.  Verify + exceptions</text>
+            <text x="92" y="345">4.  Approval workflow</text>
+            <text x="92" y="373">5.  Payment vouchers (×4)</text>
+            <text x="92" y="401">6.  Quarterly returns</text>
+            <text x="92" y="429">7.  Certificate distribution</text>
+          </g>
+
+          <text x="498" y="212" font-size="15">Module 2 — Reconciliation</text>
+          <text x="498" y="228" font-size="13" fill="#777" font-style="italic">claim every eligible credit</text>
+
+          <g font-size="15">
+            <text x="510" y="261">1.  Import credit statement</text>
+            <text x="510" y="289">2.  Match engine ( rules )</text>
+            <text x="510" y="317">3.  Discrepancy report</text>
+            <text x="510" y="345">4.  Carry-forward credits</text>
+            <text x="510" y="373">5.  Compliance report</text>
+          </g>
+        </g>
+        <text x="60" y="455" font-family="Caveat, cursive" font-size="14" fill="#888" font-style="italic">↑ contract: 12 surfaces, 2 modules, 1 platform</text>
+        <g font-family="Caveat, cursive">
+          <text x="14" y="30" font-size="12.5" fill="#555" font-style="italic">Module 1 — checks the tax we owe on what</text>
+          <text x="14" y="47" font-size="12.5" fill="#555" font-style="italic">we spend, and flags mismatches early.</text>
+          <path d="M95 54 C 70 110, 55 170, 60 224" fill="none" stroke="#999" stroke-width="1.1" stroke-dasharray="4 3" marker-end="url(#sk-arr)"/>
+          <text x="812" y="30" text-anchor="end" font-size="12.5" fill="#555" font-style="italic">Module 2 — recovers tax we&rsquo;ve already</text>
+          <text x="812" y="47" text-anchor="end" font-size="12.5" fill="#555" font-style="italic">paid, auto-matched so nothing is lost.</text>
+          <path d="M725 54 C 750 110, 762 170, 758 224" fill="none" stroke="#999" stroke-width="1.1" stroke-dasharray="4 3" marker-end="url(#sk-arr)"/>
+        </g>
+      </svg>
+      <p class="sketch-caption">Both modules rolled up into one CFO view — that&rsquo;s the platform promise.</p>
+    </div>
+
+    <div class="sketchbook" aria-label="Hand-drawn user flow showing the tax manager's path through the compliance cycle">
+      <div class="sketch-title">User flow — a tax manager&rsquo;s month</div>
+      <svg viewBox="0 0 820 320" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="rough-2"><feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="6"/><feDisplacementMap in="SourceGraphic" scale="0.7"/></filter>
+          <marker id="sk-arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0,0 L10,5 L0,10 z" fill="#2a2a2a"/>
+          </marker>
+        </defs>
+
+        <g filter="url(#rough-2)" stroke="#2a2a2a" fill="none" stroke-width="1.2">
+          <!-- 8 step boxes in horizontal flow, wrapped -->
+          <!-- Row 1 -->
+          <rect x="10"  y="20" width="138" height="80" rx="6" fill="#fff"/>
+          <rect x="170" y="20" width="138" height="80" rx="6" fill="#fff"/>
+          <rect x="330" y="20" width="138" height="80" rx="6" fill="#fff"/>
+          <rect x="490" y="20" width="138" height="80" rx="6" fill="#fff"/>
+          <rect x="650" y="20" width="160" height="80" rx="6" fill="#fff"/>
+
+          <path d="M148 60 L168 60" marker-end="url(#sk-arr2)"/>
+          <path d="M308 60 L328 60" marker-end="url(#sk-arr2)"/>
+          <path d="M468 60 L488 60" marker-end="url(#sk-arr2)"/>
+          <path d="M628 60 L648 60" marker-end="url(#sk-arr2)"/>
+
+          <!-- Wrap-around -->
+          <path d="M730 100 C 730 150, 730 150, 730 158" marker-end="url(#sk-arr2)"/>
+
+          <!-- Row 2 -->
+          <rect x="650" y="170" width="160" height="80" rx="6" fill="#fff"/>
+          <rect x="490" y="170" width="138" height="80" rx="6" fill="#fff"/>
+          <rect x="330" y="170" width="138" height="80" rx="6" fill="#fff"/>
+
+          <path d="M650 210 L632 210" marker-end="url(#sk-arr2)"/>
+          <path d="M490 210 L472 210" marker-end="url(#sk-arr2)"/>
+        </g>
+
+        <!-- step text rendered OUTSIDE rough filter, no heavy bolds -->
+        <g font-family="Caveat, cursive" font-size="15" fill="#2a2a2a">
+          <text x="79"  y="48" text-anchor="middle" fill="#999" font-size="11" letter-spacing="0.10em">STEP 1</text>
+          <text x="79"  y="68" text-anchor="middle" font-size="16">Import data</text>
+          <text x="79"  y="86" text-anchor="middle" font-size="13" fill="#777">files + ledgers</text>
+
+          <text x="239" y="48" text-anchor="middle" fill="#999" font-size="11" letter-spacing="0.10em">STEP 2</text>
+          <text x="239" y="68" text-anchor="middle" font-size="16">TDS verify</text>
+          <text x="239" y="86" text-anchor="middle" font-size="13" fill="#777">+ exceptions</text>
+
+          <text x="399" y="48" text-anchor="middle" fill="#999" font-size="11" letter-spacing="0.10em">STEP 3</text>
+          <text x="399" y="68" text-anchor="middle" font-size="16">Approve</text>
+          <text x="399" y="86" text-anchor="middle" font-size="13" fill="#777">CFO sign-off</text>
+
+          <text x="559" y="48" text-anchor="middle" fill="#999" font-size="11" letter-spacing="0.10em">STEP 4</text>
+          <text x="559" y="68" text-anchor="middle" font-size="16">Generate voucher</text>
+          <text x="559" y="86" text-anchor="middle" font-size="13" fill="#777">×4 types</text>
+
+          <text x="730" y="48" text-anchor="middle" fill="#999" font-size="11" letter-spacing="0.10em">STEP 5</text>
+          <text x="730" y="68" text-anchor="middle" font-size="16">Deposit + receipt</text>
+          <text x="730" y="86" text-anchor="middle" font-size="13" fill="#777">Govt. portal</text>
+
+          <text x="730" y="198" text-anchor="middle" fill="#999" font-size="11" letter-spacing="0.10em">STEP 6</text>
+          <text x="730" y="218" text-anchor="middle" font-size="16">File quarterly return</text>
+          <text x="730" y="236" text-anchor="middle" font-size="13" fill="#777">quarterly return</text>
+
+          <text x="559" y="198" text-anchor="middle" fill="#999" font-size="11" letter-spacing="0.10em">STEP 7</text>
+          <text x="559" y="218" text-anchor="middle" font-size="16">Certificates out</text>
+          <text x="559" y="236" text-anchor="middle" font-size="13" fill="#777">vendor self-serve</text>
+
+          <text x="399" y="198" text-anchor="middle" fill="#999" font-size="11" letter-spacing="0.10em">STEP 8</text>
+          <text x="399" y="218" text-anchor="middle" font-size="16">Reconcile credits</text>
+          <text x="399" y="236" text-anchor="middle" font-size="13" fill="#777">match + carry-fwd</text>
+        </g>
+
+        <!-- approval gate annotation -->
+        <text x="399" y="120" text-anchor="middle" font-family="Caveat, cursive" font-size="14" font-style="italic" fill="#c0392b">↑ the gate V1 was missing</text>
+        <path d="M380 122 C 380 132, 400 132, 410 132" fill="none" stroke="#c0392b" stroke-width="1.2"/>
+
+        <!-- footer annotation -->
+        <text x="10" y="298" font-family="Caveat, cursive" font-size="15" fill="#555" font-style="italic">  ↺  one cycle = one calendar month · 8 steps · 3 roles touch it (tax mgr, CFO, auditor)</text>
+      </svg>
+      <p class="sketch-caption">Every step has an owner. Every owner has a signature. That&rsquo;s what makes it a platform, not a tool.</p>
+    </div>
+
+
+
+    <!-- Mini personas removed: redundant with the dashboard rationale; invented quotes weakened the narrative -->
+    <p class="bridge">With the map done, I had enough to start drawing screens. What I didn&rsquo;t have yet was the right idea of what the product actually was.</p>
+  </div>
+</section>
+
+<!-- KEY SCREENS — V1 critique + V2 process walkthrough -->
+<section class="section-anchor" id="t-screens">
+  <div class="wrap">
+    <div class="chapter"><span class="chapter-num">03 &mdash; Where it went wrong</span><div class="chapter-line"></div></div>
+    <h2>I built a calculator. They needed an orchestration platform.</h2>
+    <p>The framing didn&rsquo;t come out of nowhere. My company had shipped a tax tool before I joined &mdash; a thing whose only job was to be fast. The CEO and the engineers who&rsquo;d built it briefed me on this new project, and I picked up their read of the problem without really questioning it. So when the client talked, I heard &ldquo;calculate tax&rdquo; and built exactly that: files in, answer out. What they actually needed was closer to an assembly line &mdash; six teams, each handling one stage, someone signing off at every handoff. As a calculator, V1 was fine. As the system they needed, it was useless.</p>
+    <p>In the review, the client opened V1, stopped on the first screen, and started counting off what was wrong. Three of those problems mattered more than the rest. I&rsquo;ve marked them on the screen below.</p>
+
+    <!-- ══════ V1 CRITIQUE — annotated challan, three wrongs ══════ -->
+    <style>
+      .v1c-style-scope{}
+      .v1crit-fig{margin:28px 0 8px;}
+      .v1crit-fig figcaption{font-family:"Satoshi",sans-serif;font-size:.78rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#c0392b;margin-bottom:10px;}
+      .v1c-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:32px 28px;margin-top:8px;}
+      @media(max-width:760px){.v1c-cards{grid-template-columns:1fr;}}
+      .v1c-card{position:relative;padding-top:6px;}
+      .v1c-num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#c0392b;color:#fff;font-family:"Satoshi",sans-serif;font-weight:700;font-size:.85rem;margin-bottom:12px;}
+      .v1c-title{font-family:"DM Serif Display",serif;font-size:1.1rem;font-weight:700;line-height:1.25;margin:0 0 .5rem;color:var(--ink);}
+      .v1c-desc{font-size:.92rem;line-height:1.6;color:var(--mid);margin:0;}
+    </style>
+    <div class="critique-block">
+      <figure class="v1crit-fig">
+        <figcaption>V1 &mdash; rejected in the meeting we showed it</figcaption>
+        <svg viewBox="0 0 1100 610" xmlns="http://www.w3.org/2000/svg" style="font-family:Caveat,cursive;width:100%;height:auto;"><defs><filter id="rghV1" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.009" numOctaves="2" seed="11" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3.1"/></filter><marker id="redArr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#c0392b"/></marker></defs><g filter="url(#rghV1)" stroke="#1a1a1a" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"><rect x="4" y="4" width="892" height="592" rx="10" fill="#fff"/><rect x="4" y="4" width="154" height="592" rx="10" fill="#fafaf8"/><line x1="158" y1="6" x2="158" y2="594"/><line x1="160" y1="74" x2="894" y2="74"/><path d="M21,105 L41,105 M24,105 L24,96 M31,105 L31,96 M38,105 L38,96 M20,96 L31,90 L42,96"/><ellipse cx="31" cy="131" rx="9" ry="3"/><path d="M22,131 L22,139 C22,141 40,141 40,139 L40,131"/><circle cx="31" cy="206" r="8"/><path d="M31,200 L31,212"/><rect x="24" y="233" width="14" height="18" rx="1"/><path d="M27,237 L35,237 M27,241 L35,241 M27,245 L33,245"/><path d="M23,272 L29,272 L31,275 L40,275 L40,285 L23,285 Z"/><rect x="10" y="232" width="142" height="24" rx="5" fill="#ecece6"/><rect x="24" y="233" width="14" height="18" rx="1"/><path d="M27,237 L35,237 M27,241 L35,241 M27,245 L33,245"/><rect x="752" y="22" width="38" height="30" rx="3" fill="#fff"/><path d="M752,22 L790,52 M790,22 L752,52"/><rect x="172" y="92" width="200" height="36" rx="6" fill="#fff"/><rect x="384" y="92" width="150" height="36" rx="6" fill="#fff"/><rect x="546" y="92" width="160" height="36" rx="6" fill="#fff"/><rect x="756" y="92" width="128" height="36" rx="6" fill="#fff"/><path d="M172,172 L172,150 L378,150 L378,172"/><rect x="172" y="172" width="206" height="330" rx="3" fill="#fff"/><path d="M392,172 L392,150 L654,150 L654,172"/><rect x="392" y="172" width="262" height="330" rx="3" fill="#fff"/><path d="M668,172 L668,150 L884,150 L884,172"/><rect x="668" y="172" width="216" height="330" rx="3" fill="#fff"/><rect x="184" y="196" width="182" height="150" rx="4" fill="#fff"/><rect x="198" y="214" width="20" height="20" rx="1" fill="#fff"/><path d="M198,214 L218,234 M218,214 L198,234"/><line x1="190" y1="312" x2="360" y2="312"/><rect x="404" y="194" width="238" height="300" rx="4" fill="#fff"/><line x1="416" y1="252" x2="630" y2="252"/><line x1="416" y1="452" x2="630" y2="452"/><rect x="680" y="194" width="192" height="300" rx="4" fill="#fff"/><line x1="690" y1="232" x2="862" y2="232"/><line x1="690" y1="424" x2="862" y2="424"/><line x1="690" y1="456" x2="862" y2="456"/><rect x="172" y="522" width="206" height="38" rx="6" fill="#fff"/><rect x="392" y="522" width="262" height="38" rx="6" fill="#fff"/><rect x="668" y="522" width="216" height="38" rx="6" fill="#fff"/></g><g font-family="Caveat,cursive" fill="#1a1a1a"><text x="20" y="80" font-size="11" letter-spacing="1.5" fill="#999">MASTER FILES</text><text x="20" y="188" font-size="11" letter-spacing="1.5" fill="#999">PROCESSED FILES</text><text x="52" y="104" font-size="15" font-weight="400">Vendor master</text><text x="52" y="140" font-size="15" font-weight="400">LDC's master</text><text x="52" y="212" font-size="15" font-weight="400">Transaction</text><text x="52" y="248" font-size="15" font-weight="700">Challan</text><text x="52" y="284" font-size="15" font-weight="400">Filing</text><text x="174" y="54" font-size="27" font-weight="600">Challan Generation</text><text x="800" y="42" font-size="14">Carter Smith ⌄</text><text x="190" y="116" font-size="14">Monthly compliance</text><text x="396" y="116" font-size="14">March</text><text x="520" y="116" font-size="13" fill="#888">▾</text><text x="558" y="116" font-size="14">2021-2022</text><text x="692" y="116" font-size="13" fill="#888">▾</text><text x="820" y="116" font-size="14" text-anchor="middle" font-weight="600">View Challans</text><text x="184" y="167" font-size="14" font-weight="600">Input Files</text><text x="358" y="167" font-size="18" fill="#888">+</text><text x="404" y="167" font-size="13" font-weight="600">Aggregate Amount of TDS Liability</text><text x="680" y="167" font-size="14" font-weight="600">Challans</text><text x="228" y="223" font-size="13">TDS_verification</text><text x="198" y="246" font-size="13">_file(march21-22).xlsx</text><text x="236" y="334" font-size="13">◉ View</text><text x="306" y="334" font-size="13">✎ Edit</text><text x="416" y="218" font-size="12" fill="#666">Total Amount of TDS Liability</text><text x="416" y="244" font-size="21" font-weight="700">₹ 2,31,896.00</text><text x="416" y="276" font-size="14" font-weight="600">Payment detail</text><text x="416" y="300" font-size="13" fill="#444">Income Tax</text><text x="628" y="300" font-size="13" fill="#444" text-anchor="end">2,21,896.00</text><text x="416" y="328" font-size="13" fill="#444">Surcharge</text><text x="628" y="328" font-size="13" fill="#444" text-anchor="end">0.00</text><text x="416" y="356" font-size="13" fill="#444">Education cess</text><text x="628" y="356" font-size="13" fill="#444" text-anchor="end">0.00</text><text x="416" y="384" font-size="13" fill="#444">Interest</text><text x="628" y="384" font-size="13" fill="#444" text-anchor="end">9,493.00</text><text x="416" y="412" font-size="13" fill="#444">Penality</text><text x="628" y="412" font-size="13" fill="#444" text-anchor="end">0.00</text><text x="416" y="440" font-size="13" fill="#444">Others</text><text x="628" y="440" font-size="13" fill="#444" text-anchor="end">0.00</text><text x="628" y="478" font-size="13" text-anchor="end">◉ View</text><text x="690" y="222" font-size="16" font-weight="700">Challan No./ ITNS 281</text><text x="690" y="256" font-size="13" font-weight="600">Payment detail</text><text x="690" y="280" font-size="13" fill="#444">Income Tax</text><text x="860" y="280" font-size="13" fill="#444" text-anchor="end">2,21,896.00</text><text x="690" y="303" font-size="13" fill="#444">Surcharge</text><text x="860" y="303" font-size="13" fill="#444" text-anchor="end">0.00</text><text x="690" y="326" font-size="13" fill="#444">Education cess</text><text x="860" y="326" font-size="13" fill="#444" text-anchor="end">0.00</text><text x="690" y="349" font-size="13" fill="#444">Interest</text><text x="860" y="349" font-size="13" fill="#444" text-anchor="end">9,493.00</text><text x="690" y="372" font-size="13" fill="#444">Penality</text><text x="860" y="372" font-size="13" fill="#444" text-anchor="end">0.00</text><text x="690" y="395" font-size="13" fill="#444">Others</text><text x="860" y="395" font-size="13" fill="#444" text-anchor="end">0.00</text><text x="690" y="446" font-size="13" font-weight="600">Total</text><text x="860" y="446" font-size="14" font-weight="700" text-anchor="end">₹ 2,31,896.00</text><text x="744" y="480" font-size="13">◉ View</text><text x="820" y="480" font-size="13">↓ Download</text><text x="275" y="547" font-size="15" text-anchor="middle">Calculate TDS</text><text x="523" y="547" font-size="15" text-anchor="middle">Generate Challan</text><text x="776" y="547" font-size="15" text-anchor="middle">Make Payment</text></g><g><circle cx="505" cy="40" r="13" fill="#c0392b"/><circle cx="932" cy="214" r="13" fill="#c0392b"/><path d="M919,214 L876,214" stroke="#c0392b" stroke-width="1.6" marker-end="url(#redArr)"/><circle cx="776" cy="500" r="13" fill="#c0392b"/><path d="M776,513 L776,520" stroke="#c0392b" stroke-width="1.6" marker-end="url(#redArr)"/><path d="M776,575 L776,564" stroke="#c0392b" stroke-width="1.6" marker-end="url(#redArr)"/></g><g><text x="505" y="45" font-size="15" font-weight="700" fill="#fff" text-anchor="middle" font-family="Satoshi,sans-serif">1</text><text x="525" y="45" font-size="14" fill="#c0392b" font-family="Satoshi,sans-serif" font-weight="600">shipped dark</text><text x="932" y="219" font-size="15" font-weight="700" fill="#fff" text-anchor="middle" font-family="Satoshi,sans-serif">2</text><text x="950" y="200" font-size="13" fill="#c0392b" font-family="Satoshi,sans-serif" font-weight="600">only one</text><text x="950" y="216" font-size="13" fill="#c0392b" font-family="Satoshi,sans-serif" font-weight="600">challan type</text><text x="950" y="232" font-size="13" fill="#c0392b" font-family="Satoshi,sans-serif">no choice</text><text x="776" y="505" font-size="15" font-weight="700" fill="#fff" text-anchor="middle" font-family="Satoshi,sans-serif">3</text><text x="776" y="586" font-size="13" fill="#c0392b" text-anchor="middle" font-family="Satoshi,sans-serif" font-weight="600">no approval before money moves</text></g></svg>
+      </figure>
+      <div class="v1c-cards">
+        <div class="v1c-card">
+          <span class="v1c-num">1</span>
+          <h4 class="v1c-title">Dark mode.</h4>
+          <p class="v1c-desc">I took the risk &mdash; dark interfaces were having a moment and I wanted to push the UI. I also misjudged what the tool was: I assumed it processed files in the background and surfaced a result. But compliance isn&rsquo;t a background job &mdash; people live inside these screens for hours, reading dense tables and cross-checking numbers. Dark mode was exactly wrong for that. First thing they said in the room.</p>
+        </div>
+        <div class="v1c-card">
+          <span class="v1c-num">2</span>
+          <h4 class="v1c-title">I designed inputs and outputs. I forgot about decisions.</h4>
+          <p class="v1c-desc">The tool accepted files and produced a result &mdash; a clean pipeline. But compliance isn&rsquo;t a pipeline; it&rsquo;s full of decision points. Which challan type applies to this entity? Is this a return or a revised return? Does an LDC exemption apply? I&rsquo;d designed around all of it. A tool that skips decisions isn&rsquo;t automating the work &mdash; it&rsquo;s hiding it.</p>
+        </div>
+        <div class="v1c-card">
+          <span class="v1c-num">3</span>
+          <h4 class="v1c-title">No maker / checker flow. On a tool that moves money.</h4>
+          <p class="v1c-desc">The platform calculates TDS, generates challans and initiates government payments. In every finance team that takes two people &mdash; one prepares, one approves. V1 had a single &ldquo;Make Payment&rdquo; button with nothing between the calculation and the bank. No review step. No CFO gate. One click and money moves on a potentially wrong number.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ V2 PROCESS WALKTHROUGH ══════ -->
+    <div class="diagnosis">
+      <span class="diag-label">The real diagnosis</span>
+      <p>V1 ran on assumptions I&rsquo;d inherited. V2 ran on the spec. That 100-page compliance document turned out to be the real user research &mdash; there were no interviews to lean on, just the law itself. Once I started reading it as the brief instead of background, almost every clause turned into a screen. That&rsquo;s what got V2 approved.</p>
+    </div>
+  </div>
+</section>
+
+<section id="t-walkthrough" class="section-anchor">
+  <div class="wrap">
+    <div class="chapter"><span class="chapter-num">04 &mdash; Connecting the dots</span><div class="chapter-line"></div></div>
+    <h2>Following the work through, stage by stage.</h2>
+    <p>Same compliance cycle as before, rebuilt. It&rsquo;s light instead of dark, all the input files are in, there&rsquo;s an approval gate at every step, and errors turn up while you&rsquo;re working rather than at the year-end audit, when they&rsquo;re expensive to fix. Here&rsquo;s the V2 process, Part A through F, in the order a tax manager actually moves through it.</p>
+
+    <div class="proc-track">
+      <div class="proc-step"><span class="proc-node">A</span><span class="proc-label"><b>Import &amp; Verify</b></span></div>
+      <div class="proc-step"><span class="proc-node">B</span><span class="proc-label">Generate Challan</span></div>
+      <div class="proc-step"><span class="proc-node">C</span><span class="proc-label">File Returns</span></div>
+      <div class="proc-step"><span class="proc-node">D</span><span class="proc-label">Distribute Certificates</span></div>
+      <div class="proc-step"><span class="proc-node">E</span><span class="proc-label">Reconcile 26AS</span></div>
+      <div class="proc-step"><span class="proc-node">F</span><span class="proc-label">Dashboard</span></div>
+    </div>
+
+    <div class="walkthrough-grid">
+
+      <!-- W1 — Import & Verify -->
+      <div class="screen-block">
+        <div class="screen-meta">
+          <span class="part-badge">Part A</span>
+          <h3 class="screen-title">Import &amp; Verify</h3>
+          <p class="screen-note">The different input files are uploaded together, then verified two ways &mdash; every PAN validated against government records, and 206AB applicability (the higher rate for non-filers) checked per vendor. The three merge into <strong>one verified file</strong> that answers, for every transaction: what kind of payment, who&rsquo;s being paid and at what rate, and whether any exemption or lower rate applies.</p>
+        </div>
+        <svg viewBox="0 0 1040 690" xmlns="http://www.w3.org/2000/svg" style="font-family:Caveat,cursive;width:100%;height:auto;"><defs><filter id="rghA" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.009" numOctaves="2" seed="42" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3.0"/></filter><marker id="aHdA" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#1a1a1a"/></marker><marker id="aMrgA" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#8a5a00"/></marker></defs><g filter="url(#rghA)" stroke="#1a1a1a" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"><rect x="360" y="20" width="320" height="380" rx="10" fill="#fff"/><line x1="360" y1="72" x2="680" y2="72"/><rect x="372" y="82" width="174" height="22" rx="4" fill="#fff"/><rect x="554" y="82" width="62" height="22" rx="4" fill="#fff"/><rect x="624" y="82" width="44" height="22" rx="4" fill="#fff"/><rect x="372" y="118" width="296" height="42" rx="5" fill="#fff"/><path d="M384,128 L396,128 L400,132 L400,150 L384,150 Z"/><circle cx="652" cy="139" r="8" fill="#fff"/><rect x="372" y="168" width="296" height="42" rx="5" fill="#fff"/><path d="M384,178 L396,178 L400,182 L400,200 L384,200 Z"/><circle cx="652" cy="189" r="8" fill="#fff"/><rect x="372" y="218" width="296" height="42" rx="5" fill="#fff"/><path d="M384,228 L396,228 L400,232 L400,250 L384,250 Z"/><circle cx="652" cy="239" r="8" fill="#fff"/><rect x="372" y="270" width="296" height="40" rx="5" fill="#fff" stroke-dasharray="5,4"/><rect x="588" y="278" width="72" height="24" rx="5" fill="#fff"/><rect x="372" y="350" width="210" height="32" rx="6" fill="#ecece6"/><rect x="590" y="350" width="78" height="32" rx="6" fill="#fff"/><rect x="20" y="150" width="300" height="210" rx="10" fill="#fff"/><rect x="40" y="222" width="16" height="16" rx="2" fill="#1a1a1a"/><rect x="40" y="250" width="16" height="16" rx="2" fill="#fff"/><rect x="40" y="278" width="16" height="16" rx="2" fill="#fff"/><rect x="168" y="322" width="64" height="26" rx="6" fill="#fff"/><rect x="240" y="322" width="64" height="26" rx="6" fill="#ecece6"/><rect x="720" y="150" width="300" height="210" rx="10" fill="#fff"/><rect x="740" y="222" width="16" height="16" rx="2" fill="#1a1a1a"/><rect x="740" y="250" width="16" height="16" rx="2" fill="#fff"/><rect x="740" y="278" width="16" height="16" rx="2" fill="#fff"/><rect x="868" y="322" width="64" height="26" rx="6" fill="#fff"/><rect x="940" y="322" width="64" height="26" rx="6" fill="#ecece6"/><path d="M360,250 L322,250" marker-end="url(#aHdA)"/><path d="M680,250 L718,250" marker-end="url(#aHdA)"/><rect x="210" y="430" width="620" height="242" rx="10" fill="#fbf3e2" stroke="#8a5a00"/><line x1="210" y1="464" x2="830" y2="464" stroke="#8a5a00"/><line x1="228" y1="548" x2="812" y2="548"/><line x1="228" y1="576" x2="812" y2="576"/><line x1="228" y1="604" x2="812" y2="604"/><rect x="600" y="628" width="212" height="26" rx="5" fill="#fff"/><path d="M170,360 C 200,410, 320,420, 360,446" stroke="#8a5a00" stroke-dasharray="4 3" marker-end="url(#aMrgA)"/><path d="M520,400 L520,426" stroke="#8a5a00" stroke-dasharray="4 3" marker-end="url(#aMrgA)"/><path d="M870,360 C 840,410, 720,420, 680,446" stroke="#8a5a00" stroke-dasharray="4 3" marker-end="url(#aMrgA)"/></g><g font-family="Caveat,cursive" fill="#1a1a1a"><text x="376" y="48" font-size="18" font-weight="600">Upload</text><text x="656" y="48" font-size="17">×</text><text x="376" y="66" font-size="11" fill="#888">Input files &middot; Entity, FY, month</text><text x="380" y="98" font-size="10">Entity: CLIENT I</text><text x="562" y="98" font-size="10">FY 22-23</text><text x="632" y="98" font-size="10">Apr ▾</text><text x="410" y="137" font-size="12">Input file 1</text><text x="410" y="152" font-size="9.5" fill="#888">ledger data</text><text x="652" y="143" font-size="10" text-anchor="middle">✓</text><text x="410" y="187" font-size="12">Input file 2</text><text x="410" y="202" font-size="9.5" fill="#888">register data</text><text x="652" y="193" font-size="10" text-anchor="middle">✓</text><text x="410" y="237" font-size="12">Input file 3</text><text x="410" y="252" font-size="9.5" fill="#888">reference data</text><text x="652" y="243" font-size="10" text-anchor="middle">✓</text><text x="392" y="294" font-size="12" fill="#666">Drag &amp; Drop files here</text><text x="624" y="294" font-size="11" text-anchor="middle">Browse</text><text x="382" y="370" font-size="10.5" font-weight="600">Step 1: Upload</text><text x="470" y="370" font-size="10.5" fill="#888">› Map › Save</text><text x="629" y="370" font-size="11" text-anchor="middle" font-weight="600">Continue</text><text x="36" y="180" font-size="16" font-weight="600">PAN Validation</text><text x="304" y="178" font-size="14">×</text><text x="36" y="204" font-size="12" fill="#666">Validate PAN of</text><text x="48" y="234" font-size="11" fill="#fff" text-anchor="middle">✓</text><text x="66" y="235" font-size="12">All Vendors</text><text x="66" y="263" font-size="12">Selected Vendors</text><text x="66" y="291" font-size="12">Incremental Vendors</text><text x="200" y="339" font-size="12" text-anchor="middle">Cancel</text><text x="272" y="339" font-size="12" text-anchor="middle" font-weight="600">Validate</text><text x="36" y="310" font-size="11" fill="#444">1,231 valid · 12 flagged</text><text x="736" y="180" font-size="16" font-weight="600">206AB Applicability</text><text x="1004" y="178" font-size="14">×</text><text x="736" y="204" font-size="12" fill="#666">Check 206AB for</text><text x="748" y="234" font-size="11" fill="#fff" text-anchor="middle">✓</text><text x="766" y="235" font-size="12">All Vendors</text><text x="766" y="263" font-size="12">Selected Vendors</text><text x="766" y="291" font-size="12">Incremental Vendors</text><text x="900" y="339" font-size="12" text-anchor="middle">Cancel</text><text x="972" y="339" font-size="12" text-anchor="middle" font-weight="600">Check</text><text x="736" y="310" font-size="11" fill="#444">3 vendors → higher rate</text><text x="341" y="240" font-size="11" text-anchor="middle" font-style="italic">verify</text><text x="699" y="240" font-size="11" text-anchor="middle" font-style="italic">check</text><text x="228" y="540" font-size="12.5" fill="#444">Professional fees · 194J</text><text x="440" y="540" font-size="12.5" fill="#444">ABC Pvt · 10%</text><text x="648" y="540" font-size="12.5" fill="#444" font-weight="400">—</text><text x="228" y="568" font-size="12.5" fill="#444">Contractor · 194C</text><text x="440" y="568" font-size="12.5" fill="#444">XYZ Ltd · 2%</text><text x="228" y="596" font-size="12.5" fill="#444">Rent · 194I</text><text x="440" y="596" font-size="12.5" fill="#444">Mno Co · 10%</text><text x="706" y="645" font-size="12" text-anchor="middle" font-weight="600">Ready for Part B &rarr;</text></g><g><text x="228" y="452" font-size="11" font-weight="700" letter-spacing="0.12em" fill="#8a5a00" font-family="Satoshi,sans-serif">OUTPUT &mdash; ONE VERIFIED FILE</text><text x="228" y="486" font-size="12.5" font-style="italic" fill="#7a5300" font-family="Satoshi,sans-serif">what kind of payment?  &rarr;  who&rsquo;s paid &amp; at what rate?  &rarr;  any exemption / lower rate?</text><text x="228" y="512" font-size="11" fill="#999" font-family="Satoshi,sans-serif">NATURE OF PAYMENT</text><text x="440" y="512" font-size="11" fill="#999" font-family="Satoshi,sans-serif">VENDOR &middot; RATE</text><text x="648" y="512" font-size="11" fill="#999" font-family="Satoshi,sans-serif">EXEMPTION</text><text x="648" y="568" font-size="12.5" fill="#8a5a00" font-weight="600">LDC → 1%</text><text x="648" y="596" font-size="12.5" fill="#c0392b" font-weight="600">206AB → 20%</text><text x="228" y="642" font-size="12" fill="#7a5300" font-family="Satoshi,sans-serif">1,243 vendors merged &middot; 12 flagged &rarr; Exception tab</text><text x="520" y="420" font-size="11.5" text-anchor="middle" font-style="italic" fill="#8a5a00" font-family="Satoshi,sans-serif">merge + carry every check into one record</text></g></svg>
+      </div>
+
+      <!-- W2 — Generate Challan -->
+      <div class="screen-block">
+        <div class="screen-meta">
+          <span class="part-badge">Part B</span>
+          <h3 class="screen-title">Generate Challan</h3>
+          <p class="screen-note">Same shape as Part A: one input, a decision, an output. The verified file comes in; the user picks <strong>how to group the payments into challans</strong> &mdash; four ways, depending on the entity; the platform generates the challans. After payment each one is matched against OLTAS (the government&rsquo;s tax-accounting system) so an unmatched payment surfaces at once, not at year-end &mdash; and nothing moves until the CFO approves.</p>
+        </div>
+        <svg viewBox="0 0 1040 586" xmlns="http://www.w3.org/2000/svg" style="font-family:Caveat,cursive;width:100%;height:auto;"><defs><filter id="rghB" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.009" numOctaves="2" seed="11" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3.0"/></filter><marker id="aHdB" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#1a1a1a"/></marker></defs><g filter="url(#rghB)" stroke="#1a1a1a" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"><rect x="16" y="96" width="242" height="244" rx="10" fill="#fbf3e2" stroke="#8a5a00"/><line x1="16" y1="128" x2="258" y2="128" stroke="#8a5a00"/><line x1="30" y1="200" x2="244" y2="200"/><line x1="30" y1="234" x2="244" y2="234"/><line x1="30" y1="268" x2="244" y2="268"/><line x1="30" y1="302" x2="244" y2="302"/><path d="M258,218 L298,218" marker-end="url(#aHdB)"/><rect x="300" y="96" width="440" height="244" rx="10" fill="#fff"/><line x1="300" y1="128" x2="740" y2="128"/><rect x="312" y="150" width="416" height="38" rx="7" fill="#fbf3e2" stroke="#8a5a00"/><circle cx="334" cy="169" r="7" fill="#fff" stroke="#1a1a1a"/><circle cx="334" cy="169" r="3" fill="#1a1a1a"/><rect x="312" y="196" width="416" height="38" rx="7" fill="#fff" stroke="#ccc"/><circle cx="334" cy="215" r="7" fill="#fff" stroke="#aaa"/><rect x="312" y="242" width="416" height="38" rx="7" fill="#fff" stroke="#ccc"/><circle cx="334" cy="261" r="7" fill="#fff" stroke="#aaa"/><rect x="312" y="288" width="416" height="38" rx="7" fill="#fff" stroke="#ccc"/><circle cx="334" cy="307" r="7" fill="#fff" stroke="#aaa"/><path d="M740,218 L780,218" marker-end="url(#aHdB)"/><rect x="782" y="96" width="242" height="244" rx="10" fill="#fbf3e2" stroke="#8a5a00"/><line x1="782" y1="128" x2="1024" y2="128" stroke="#8a5a00"/><rect x="796" y="158" width="214" height="58" rx="6" fill="#fff"/><rect x="796" y="222" width="214" height="58" rx="6" fill="#fff"/><rect x="796" y="310" width="214" height="22" rx="5" fill="#fff"/><rect x="16" y="372" width="1008" height="124" rx="10" fill="#fff"/><line x1="16" y1="406" x2="1024" y2="406"/><line x1="30" y1="434" x2="994" y2="434"/><line x1="30" y1="456" x2="994" y2="456"/><line x1="30" y1="478" x2="994" y2="478"/><rect x="16" y="510" width="1008" height="56" rx="10" fill="#fbf3e2" stroke="#8a5a00"/><circle cx="50" cy="548" r="8" fill="#1a1a1a"/><circle cx="150" cy="548" r="8" fill="#1a1a1a"/><circle cx="250" cy="548" r="8" fill="#fff" stroke="#aaa"/><line x1="58" y1="548" x2="142" y2="548"/><line x1="158" y1="548" x2="242" y2="548" stroke-dasharray="3 2"/><rect x="838" y="534" width="170" height="26" rx="6" fill="#1a1a1a"/></g><g font-family="Caveat,cursive" fill="#1a1a1a"><text x="16" y="40" font-size="24" font-weight="600">Generate Challan</text><text x="16" y="60" font-size="12" fill="#888">Take the verified file, decide how to group the payments, produce the challans.</text><text x="30" y="150" font-size="14" font-weight="700">Verified output file</text><text x="30" y="176" font-size="12" fill="#666">Nature of payment</text><text x="30" y="191" font-size="12.5">194Q, 194J, 194C…</text><text x="30" y="210" font-size="12" fill="#666">Vendor &amp; rate</text><text x="30" y="225" font-size="12.5">1,243 · rate each</text><text x="30" y="244" font-size="12" fill="#666">Exemption / LDC</text><text x="30" y="259" font-size="12.5">applied where due</text><text x="30" y="278" font-size="12" fill="#666">Corporate flag</text><text x="30" y="293" font-size="12.5">set per vendor</text><text x="30" y="330" font-size="11.5" fill="#7a5300" font-style="italic" font-family="Satoshi,sans-serif">everything Part B needs is already here</text><text x="278" y="210" font-size="11" text-anchor="middle" font-style="italic">decide</text><text x="316" y="118" font-size="13" font-weight="700">Choose how to generate the challan</text><text x="352" y="174" font-size="11.5" font-weight="600">Generate separate Challan for corporate and non-corporate</text><text x="352" y="220" font-size="11.5" font-weight="400">Generate cumulative Challan for corporate and non-corporate</text><text x="352" y="266" font-size="11.5" font-weight="400">Generate sectionwise challan for corporate and non-corporate</text><text x="352" y="312" font-size="11.5" font-weight="400">Generate sectionwise challan for corporate and non-corporate together.</text><text x="760" y="210" font-size="11" text-anchor="middle" font-style="italic">generate</text><text x="796" y="148" font-size="12.5" fill="#888">separate, as chosen ↑</text><text x="808" y="178" font-size="12.5" font-weight="600">Challan 1 &middot; Corporate</text><text x="808" y="196" font-size="11" fill="#888">Form 281 &middot; ₹ 4,21,000</text><text x="996" y="190" font-size="11" text-anchor="end">✓</text><text x="808" y="242" font-size="12.5" font-weight="600">Challan 2 &middot; Non-corp</text><text x="808" y="260" font-size="11" fill="#888">Form 281 &middot; ₹ 2,18,000</text><text x="996" y="254" font-size="11" text-anchor="end">✓</text><text x="796" y="300" font-size="12" fill="#444">Total ₹ 6,39,000</text><text x="903" y="325" font-size="11" text-anchor="middle" font-weight="600">↓ Download</text><text x="30" y="394" font-size="13.5" font-weight="700">After payment &mdash; verify each challan against OLTAS</text><text x="430" y="394" font-size="11.5" fill="#888">the govt&rsquo;s tax-accounting system; confirms the money actually landed</text><text x="30" y="428" font-size="12">CIN-10001</text><text x="200" y="428" font-size="12" fill="#444">₹ 4,21,000</text><text x="380" y="428" font-size="12" fill="#1a1a1a" font-weight="400">✓ matched</text><text x="30" y="450" font-size="12">CIN-10002</text><text x="200" y="450" font-size="12" fill="#444">₹ 2,18,000</text><text x="380" y="450" font-size="12" fill="#1a1a1a" font-weight="400">✓ matched</text><text x="30" y="472" font-size="12">CIN-10003</text><text x="200" y="472" font-size="12" fill="#444">₹ 64,200</text><text x="50" y="552" font-size="10" fill="#fff" text-anchor="middle">✓</text><text x="150" y="552" font-size="10" fill="#fff" text-anchor="middle">✓</text><text x="250" y="552" font-size="10" fill="#888" text-anchor="middle">3</text><text x="74" y="552" font-size="12">Prep</text><text x="174" y="552" font-size="12">CFO</text><text x="274" y="552" font-size="12" fill="#888">File</text><text x="923" y="551" font-size="12.5" text-anchor="middle" fill="#fff" font-weight="600">Send for Approval &rarr;</text></g><g><text x="380" y="472" font-size="12" fill="#c0392b" font-weight="600">✕ unmatched !</text><text x="994" y="450" font-size="11" fill="#c0392b" text-anchor="end" font-style="italic">unmatched surfaces now &mdash; not at year-end audit</text><text x="30" y="532" font-size="11" letter-spacing="0.1em" fill="#8a5a00" font-family="Satoshi,sans-serif" font-weight="700">APPROVAL GATE &mdash; PAYMENT BLOCKED UNTIL CFO SIGNS</text></g><g><text x="30" y="118" font-size="10.5" font-weight="700" letter-spacing="0.1em" fill="#8a5a00" font-family="Satoshi,sans-serif">INPUT &mdash; FROM PART A</text><text x="796" y="118" font-size="10.5" font-weight="700" letter-spacing="0.1em" fill="#8a5a00" font-family="Satoshi,sans-serif">OUTPUT &mdash; CHALLANS</text></g></svg>
+      </div>
+
+      <!-- W3 — File Return -->
+      <div class="screen-block">
+        <div class="screen-meta">
+          <span class="part-badge">Part C</span>
+          <h3 class="screen-title">File the Return (26Q / 27Q)</h3>
+          <p class="screen-note">A return is mostly a view of work already done &mdash; the paid challans and deductee details are pulled in, the platform builds and validates the FVU file, and the operator files to TIN-NSDL. The first decision is <strong>Original or Revised</strong>: a revised return loads the already-filed return and its token so corrections re-file as a revision, not a duplicate.</p>
+        </div>
+        <svg viewBox="0 0 1040 354" xmlns="http://www.w3.org/2000/svg" style="font-family:Caveat,cursive;width:100%;height:auto;"><defs><filter id="rghC" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.009" numOctaves="2" seed="23" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3.0"/></filter><marker id="aHdC" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#1a1a1a"/></marker></defs><g filter="url(#rghC)" stroke="#1a1a1a" stroke-width="1.4" fill="none" stroke-linejoin="round" stroke-linecap="round"><rect x="16" y="92" width="242" height="244" rx="10" fill="#fbf3e2" stroke="#8a5a00"/><line x1="16" y1="124" x2="258" y2="124" stroke="#8a5a00"/><line x1="30" y1="196" x2="244" y2="196"/><line x1="30" y1="230" x2="244" y2="230"/><line x1="30" y1="264" x2="244" y2="264"/><line x1="30" y1="298" x2="244" y2="298"/><path d="M258,214 L298,214" marker-end="url(#aHdC)"/><rect x="300" y="92" width="440" height="244" rx="10" fill="#fff"/><line x1="300" y1="124" x2="740" y2="124"/><rect x="316" y="138" width="120" height="30" rx="15" fill="#1a1a1a"/><rect x="444" y="138" width="120" height="30" rx="15" fill="#fff" stroke="#bbb"/><circle cx="324" cy="258" r="7" fill="#eef3e9"/><circle cx="324" cy="282" r="7" fill="#eef3e9"/><circle cx="324" cy="306" r="7" fill="#eef3e9"/><path d="M740,214 L780,214" marker-end="url(#aHdC)"/><rect x="782" y="92" width="242" height="244" rx="10" fill="#fbf3e2" stroke="#8a5a00"/><line x1="782" y1="124" x2="1024" y2="124" stroke="#8a5a00"/><rect x="796" y="138" width="214" height="50" rx="6" fill="#fff"/><path d="M810,150 L822,150 L826,154 L826,176 L810,176 Z"/><rect x="796" y="250" width="214" height="40" rx="6" fill="#fff" stroke="#c0392b"/><rect x="796" y="302" width="214" height="26" rx="6" fill="#1a1a1a"/></g><g font-family="Caveat,cursive" fill="#1a1a1a"><text x="16" y="38" font-size="24" font-weight="600">File the Return</text><text x="16" y="58" font-size="12" fill="#888">Same shape as before: the finished work comes in, one decision, a validated file goes out to the government.</text><text x="30" y="146" font-size="14" font-weight="700">Work already done</text><text x="30" y="172" font-size="12" fill="#666">Deductee details</text><text x="30" y="187" font-size="12.5">1,243 verified</text><text x="30" y="206" font-size="12" fill="#666">Paid challans</text><text x="30" y="221" font-size="12.5">84 &middot; OLTAS-matched</text><text x="30" y="240" font-size="12" fill="#666">Challan &harr; deductee</text><text x="30" y="255" font-size="12.5">auto-mapped</text><text x="30" y="274" font-size="12" fill="#666">Total TDS</text><text x="30" y="289" font-size="12.5">₹ 42.18 L</text><text x="30" y="326" font-size="11.5" fill="#7a5300" font-style="italic" font-family="Satoshi,sans-serif">nothing re-entered &mdash; the return is a view</text><text x="278" y="206" font-size="11" text-anchor="middle" font-style="italic">decide</text><text x="316" y="114" font-size="13" font-weight="700">Original return, or revising a filed one?</text><text x="376" y="157" font-size="12.5" fill="#fff" text-anchor="middle" font-weight="600">Original</text><text x="504" y="157" font-size="12.5" text-anchor="middle">Revised</text><text x="316" y="240" font-size="12.5" font-weight="600">Platform builds + validates the FVU</text><text x="324" y="262" font-size="10" fill="#2e7d32" text-anchor="middle">✓</text><text x="342" y="262" font-size="12" fill="#444">PAN format &amp; section codes</text><text x="324" y="286" font-size="10" fill="#2e7d32" text-anchor="middle">✓</text><text x="342" y="286" font-size="12" fill="#444">Challan totals tie to deductees</text><text x="324" y="310" font-size="10" fill="#2e7d32" text-anchor="middle">✓</text><text x="342" y="310" font-size="12" fill="#444">Deadline &amp; deductor details</text><text x="760" y="206" font-size="11" text-anchor="middle" font-style="italic">file</text><text x="836" y="160" font-size="12.5" font-weight="600">26Q_Q3_FY23.fvu</text><text x="836" y="177" font-size="10.5" fill="#2e7d32">✓ validated, no errors</text><text x="796" y="214" font-size="12.5">Filed to <tspan font-weight="600">TIN-NSDL</tspan></text><text x="796" y="236" font-size="12" fill="#666">Token  AKTF2291103</text><text x="903" y="319" font-size="12.5" text-anchor="middle" fill="#fff" font-weight="600">Generate &amp; File &rarr;</text></g><g><text x="810" y="266" font-size="10" letter-spacing="0.1em" fill="#c0392b" font-family="Satoshi,sans-serif">DEADLINE</text><text x="810" y="281" font-size="13" font-weight="600" fill="#c0392b">31 Jan &middot; 12 days left</text></g><g><text x="30" y="114" font-size="10.5" font-weight="700" letter-spacing="0.1em" fill="#8a5a00" font-family="Satoshi,sans-serif">INPUT &mdash; FROM PARTS A &amp; B</text><text x="316" y="192" font-size="11.5" font-style="italic" fill="#8a5a00" font-family="Satoshi,sans-serif">Revised loads the filed return + its 15-digit</text><text x="316" y="207" font-size="11.5" font-style="italic" fill="#8a5a00" font-family="Satoshi,sans-serif">token, so corrections re-file as a revision &mdash; not a duplicate.</text><text x="796" y="114" font-size="10.5" font-weight="700" letter-spacing="0.1em" fill="#8a5a00" font-family="Satoshi,sans-serif">OUTPUT &mdash; FVU FILE</text></g></svg>
+      </div>
+
+      <!-- W4 — Distribute Form 16A -->
+      <div class="screen-block">
+        <div class="screen-meta">
+          <span class="part-badge">Part D</span>
+          <h3 class="screen-title">Distribute Form 16A to vendors</h3>
+          <p class="screen-note">Same shape again: certificates come in from TRACES, each request&rsquo;s <strong>state decides its action</strong> &mdash; Processing shows Track, Available shows Download and Send, a bounced delivery surfaces Re-send &mdash; and the vendor self-serves. The tax team stops being a help desk.</p>
+        </div>
+        <svg viewBox="0 0 1040 354" xmlns="http://www.w3.org/2000/svg" style="font-family:Caveat,cursive;width:100%;height:auto;"><defs><filter id="rghD" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.009" numOctaves="2" seed="31" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3.0"/></filter><marker id="aHdD" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#1a1a1a"/></marker></defs><g filter="url(#rghD)" stroke="#1a1a1a" stroke-width="1.4" fill="none" stroke-linejoin="round" stroke-linecap="round"><rect x="16" y="92" width="242" height="244" rx="10" fill="#fbf3e2" stroke="#8a5a00"/><line x1="16" y1="124" x2="258" y2="124" stroke="#8a5a00"/><line x1="30" y1="196" x2="244" y2="196"/><line x1="30" y1="230" x2="244" y2="230"/><line x1="30" y1="264" x2="244" y2="264"/><line x1="30" y1="298" x2="244" y2="298"/><path d="M258,214 L298,214" marker-end="url(#aHdD)"/><rect x="300" y="92" width="440" height="244" rx="10" fill="#fff"/><line x1="300" y1="124" x2="740" y2="124"/><rect x="316" y="148" width="180" height="40" rx="7" fill="#fff" stroke="#8a5a00"/><path d="M500,168 L532,168" marker-end="url(#aHdD)"/><rect x="540" y="153" width="188" height="30" rx="6" fill="#f5f5f2" stroke="#ccc"/><rect x="316" y="196" width="180" height="40" rx="7" fill="#fff" stroke="#2e7d32"/><path d="M500,216 L532,216" marker-end="url(#aHdD)"/><rect x="540" y="201" width="188" height="30" rx="6" fill="#eef3e9" stroke="#2e7d32"/><rect x="316" y="244" width="180" height="40" rx="7" fill="#fff" stroke="#c0392b"/><path d="M500,264 L532,264" marker-end="url(#aHdD)"/><rect x="540" y="249" width="188" height="30" rx="6" fill="#f5f5f2" stroke="#ccc"/><path d="M740,214 L780,214" marker-end="url(#aHdD)"/><rect x="782" y="92" width="242" height="244" rx="10" fill="#fbf3e2" stroke="#8a5a00"/><line x1="782" y1="124" x2="1024" y2="124" stroke="#8a5a00"/><circle cx="804" cy="172" r="7" fill="#eef3e9"/><circle cx="804" cy="214" r="7" fill="#eef3e9"/><circle cx="804" cy="256" r="7" fill="#eef3e9"/></g><g font-family="Caveat,cursive" fill="#1a1a1a"><text x="16" y="38" font-size="24" font-weight="600">Distribute Form 16A</text><text x="16" y="58" font-size="12" fill="#888">Certificates come back from TRACES; each one&rsquo;s action depends on its state; the vendor self-serves.</text><text x="30" y="146" font-size="14" font-weight="700">Certificate requests</text><text x="30" y="172" font-size="12" fill="#666">Form 16A / 16</text><text x="30" y="187" font-size="12.5">26Q &amp; 27Q</text><text x="30" y="206" font-size="12" fill="#666">Vendors</text><text x="30" y="221" font-size="12.5">1,243</text><text x="30" y="240" font-size="12" fill="#666">Period</text><text x="30" y="255" font-size="12.5">Q3 FY23</text><text x="30" y="274" font-size="12" fill="#666">Source</text><text x="30" y="289" font-size="12.5">TRACES bulk file</text><text x="30" y="326" font-size="11.5" fill="#7a5300" font-style="italic" font-family="Satoshi,sans-serif">one request per vendor, per quarter</text><text x="278" y="206" font-size="11" text-anchor="middle" font-style="italic">by state</text><text x="316" y="114" font-size="13" font-weight="700">The state decides the action</text><text x="330" y="166" font-size="12.5" font-weight="600" fill="#8a5a00">Processing</text><text x="330" y="181" font-size="10.5" fill="#888">being prepared at TRACES</text><text x="634" y="172" font-size="12" text-anchor="middle" font-weight="600" fill="#555">Track</text><text x="330" y="214" font-size="12.5" font-weight="600" fill="#2e7d32">Available</text><text x="330" y="229" font-size="10.5" fill="#888">ready to hand over</text><text x="634" y="220" font-size="12" text-anchor="middle" font-weight="600" fill="#2e7d32">Download + Send</text><text x="330" y="262" font-size="12.5" font-weight="600" fill="#c0392b">Bounced</text><text x="330" y="277" font-size="10.5" fill="#888">delivery failed</text><text x="634" y="268" font-size="12" text-anchor="middle" font-weight="600" fill="#555">Re-send</text><text x="760" y="206" font-size="11" text-anchor="middle" font-style="italic">deliver</text><text x="796" y="146" font-size="13.5" font-weight="700">Vendor gets the certificate</text><text x="804" y="176" font-size="10" fill="#2e7d32" text-anchor="middle">✓</text><text x="820" y="176" font-size="12.5" font-weight="600">Emailed + portal link</text><text x="820" y="192" font-size="11" fill="#888">the moment it&rsquo;s ready</text><text x="804" y="218" font-size="10" fill="#2e7d32" text-anchor="middle">✓</text><text x="820" y="218" font-size="12.5" font-weight="600">No follow-up</text><text x="820" y="234" font-size="11" fill="#888">tax team isn&rsquo;t a help desk</text><text x="804" y="260" font-size="10" fill="#2e7d32" text-anchor="middle">✓</text><text x="820" y="260" font-size="12.5" font-weight="600">Re-send</text><text x="820" y="276" font-size="11" fill="#888">one click if it bounces</text><text x="796" y="326" font-size="11.5" fill="#7a5300" font-style="italic" font-family="Satoshi,sans-serif">weeks of chasing &rarr; gone</text></g><g></g><g><text x="30" y="114" font-size="10.5" font-weight="700" letter-spacing="0.1em" fill="#8a5a00" font-family="Satoshi,sans-serif">INPUT &mdash; FROM TRACES</text><text x="796" y="114" font-size="10.5" font-weight="700" letter-spacing="0.1em" fill="#8a5a00" font-family="Satoshi,sans-serif">OUTPUT &mdash; VENDOR SELF-SERVE</text></g></svg>
+      </div>
+
+            <!-- W5 — Reconcile -->
+      <div class="screen-block">
+        <div class="screen-meta">
+          <span class="part-badge">Part E</span>
+          <h3 class="screen-title">Reconcile Income with Form 26AS</h3>
+          <p class="screen-note">Two records in &mdash; our books and the government&rsquo;s Form 26AS &mdash; a <strong>match engine</strong> between them, and one output where nothing is lost: matched credits claimed, unclaimed ones carried forward to next year (Section 34A), missed rows flagged to chase.</p>
+        </div>
+        <svg viewBox="0 0 1040 354" xmlns="http://www.w3.org/2000/svg" style="font-family:Caveat,cursive;width:100%;height:auto;"><defs><filter id="rghE" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.009" numOctaves="2" seed="37" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3.0"/></filter><marker id="aHdE" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#1a1a1a"/></marker></defs><g filter="url(#rghE)" stroke="#1a1a1a" stroke-width="1.4" fill="none" stroke-linejoin="round" stroke-linecap="round"><rect x="16" y="92" width="242" height="244" rx="10" fill="#fbf3e2" stroke="#8a5a00"/><line x1="16" y1="124" x2="258" y2="124" stroke="#8a5a00"/><rect x="30" y="140" width="214" height="58" rx="6" fill="#fff"/><path d="M44,154 L56,154 L60,158 L60,184 L44,184 Z"/><rect x="30" y="208" width="214" height="58" rx="6" fill="#fff"/><path d="M44,222 L56,222 L60,226 L60,252 L44,252 Z"/><path d="M258,214 L298,214" marker-end="url(#aHdE)"/><rect x="300" y="92" width="440" height="244" rx="10" fill="#fff"/><line x1="300" y1="124" x2="740" y2="124"/><rect x="316" y="150" width="408" height="44" rx="7" fill="#fff" stroke="#2e7d32"/><rect x="316" y="206" width="408" height="46" rx="7" fill="#fff" stroke="#8a5a00"/><rect x="316" y="262" width="408" height="46" rx="7" fill="#fff" stroke="#c0392b"/><path d="M740,214 L780,214" marker-end="url(#aHdE)"/><rect x="782" y="92" width="242" height="244" rx="10" fill="#fbf3e2" stroke="#8a5a00"/><line x1="782" y1="124" x2="1024" y2="124" stroke="#8a5a00"/><circle cx="804" cy="172" r="7" fill="#eef3e9"/><circle cx="804" cy="214" r="7" fill="#eef3e9"/><circle cx="804" cy="256" r="7" fill="#eef3e9"/></g><g font-family="Caveat,cursive" fill="#1a1a1a"><text x="16" y="38" font-size="24" font-weight="600">Reconcile Income with Form 26AS</text><text x="16" y="58" font-size="12" fill="#888">Two records in, a match engine between them, and every unclaimed credit accounted for.</text><text x="74" y="164" font-size="12.5" font-weight="600">Our books</text><text x="74" y="182" font-size="10.5" fill="#888">income + TDS deducted</text><text x="74" y="232" font-size="12.5" font-weight="600">Form 26AS</text><text x="74" y="250" font-size="10.5" fill="#888">govt tax-credit statement</text><text x="30" y="296" font-size="12" fill="#666">5,840 line items each</text><text x="30" y="326" font-size="11.5" fill="#7a5300" font-style="italic" font-family="Satoshi,sans-serif">do they agree, line by line?</text><text x="278" y="206" font-size="11" text-anchor="middle" font-style="italic">match</text><text x="316" y="114" font-size="13" font-weight="700">Match engine splits every row three ways</text><text x="332" y="172" font-size="14" font-weight="700" fill="#2e7d32">4,912</text><text x="404" y="172" font-size="13" font-weight="600" fill="#2e7d32">Matched</text><text x="404" y="188" font-size="10.5" fill="#888">books = 26AS, nothing to do</text><text x="332" y="228" font-size="14" font-weight="700" fill="#8a5a00">61</text><text x="404" y="228" font-size="13" font-weight="600" fill="#8a5a00">Partial</text><text x="404" y="244" font-size="10.5" fill="#888">amounts differ &mdash; investigate</text><text x="332" y="284" font-size="14" font-weight="700" fill="#c0392b">12</text><text x="404" y="284" font-size="13" font-weight="600" fill="#c0392b">Missed</text><text x="404" y="300" font-size="10.5" fill="#888">in books, not yet in 26AS</text><text x="760" y="206" font-size="11" text-anchor="middle" font-style="italic">resolve</text><text x="796" y="146" font-size="13.5" font-weight="700">Every credit accounted for</text><text x="804" y="176" font-size="10" fill="#2e7d32" text-anchor="middle">✓</text><text x="820" y="176" font-size="12.5" font-weight="600">Claimed now</text><text x="820" y="192" font-size="11" fill="#888">matched credits taken</text><text x="804" y="218" font-size="10" fill="#2e7d32" text-anchor="middle">✓</text><text x="820" y="218" font-size="12.5" font-weight="600">Carried forward</text><text x="820" y="234" font-size="11" fill="#888">unclaimed &rarr; next FY (34A)</text><text x="804" y="260" font-size="10" fill="#2e7d32" text-anchor="middle">✓</text><text x="820" y="260" font-size="12.5" font-weight="600">Flagged</text><text x="820" y="276" font-size="11" fill="#888">missed rows chased with vendor</text><text x="796" y="326" font-size="11.5" fill="#7a5300" font-style="italic" font-family="Satoshi,sans-serif">no eligible credit ever written off</text></g><g></g><g><text x="30" y="114" font-size="10.5" font-weight="700" letter-spacing="0.1em" fill="#8a5a00" font-family="Satoshi,sans-serif">INPUT &mdash; TWO RECORDS</text><text x="796" y="114" font-size="10.5" font-weight="700" letter-spacing="0.1em" fill="#8a5a00" font-family="Satoshi,sans-serif">OUTPUT &mdash; NOTHING LOST</text></g></svg>
+      </div>
+
+      <!-- W6 — Dashboard -->
+      <div class="screen-block">
+        <div class="screen-meta">
+          <span class="part-badge">Part F</span>
+          <h3 class="screen-title">Dashboard &mdash; compliance at a glance</h3>
+          <p class="screen-note">The landing screen the client never had in V1. Monthly TDS by section, deposit status with a named owner per month, the compliance calendar and quarter-by-quarter return status &mdash; the whole obligation, on one screen, with the delayed items called out. But a dashboard isn&rsquo;t a place to put charts &mdash; every panel had to earn its spot by answering a question someone actually asks.</p>
+        </div>
+        <svg viewBox="0 0 1120 786" xmlns="http://www.w3.org/2000/svg" style="font-family:Caveat,cursive;width:100%;height:auto;"><defs><filter id="rghF" x="-2%" y="-2%" width="104%" height="104%"><feTurbulence type="fractalNoise" baseFrequency="0.009" numOctaves="2" seed="31" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.6"/></filter><marker id="rfA" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#c0392b"/></marker></defs><g filter="url(#rghF)" stroke="#1a1a1a" stroke-width="1.4" fill="none" stroke-linejoin="round" stroke-linecap="round"><rect x="6" y="4" width="1108" height="780" rx="12" fill="#fff"/><line x1="6" y1="64" x2="1114" y2="64"/><rect x="700" y="22" width="160" height="26" rx="5" fill="#f5f5f2"/><rect x="18" y="104" width="350" height="248" rx="8" fill="#fff"/><rect x="48" y="250" width="30" height="50" fill="#fff"/><rect x="96" y="220" width="30" height="80" fill="#1a1a1a"/><rect x="144" y="198" width="30" height="102" fill="#1a1a1a"/><rect x="192" y="222" width="30" height="78" fill="#1a1a1a"/><rect x="240" y="250" width="30" height="50" fill="#fff"/><rect x="288" y="264" width="30" height="36" fill="#fff"/><rect x="384" y="104" width="350" height="248" rx="8" fill="#fff"/><rect x="438" y="154" width="184" height="18" rx="4" fill="#eef3e9"/><rect x="438" y="181" width="184" height="18" rx="4" fill="#eef3e9"/><rect x="438" y="208" width="184" height="18" rx="4" fill="#eef3e9"/><rect x="438" y="235" width="184" height="18" rx="4" fill="#eef3e9"/><rect x="438" y="289" width="184" height="18" rx="4" fill="#eef3e9"/><rect x="750" y="104" width="350" height="248" rx="8" fill="#fff"/><rect x="766" y="152" width="318" height="22" rx="4" fill="#f5f5f2"/><rect x="766" y="182" width="318" height="22" rx="4" fill="#fff"/><rect x="766" y="212" width="318" height="22" rx="4" fill="#f5f5f2"/><rect x="18" y="372" width="350" height="248" rx="8" fill="#fff"/><rect x="34" y="420" width="318" height="22" rx="4" fill="#eef3e9"/><rect x="34" y="476" width="318" height="22" rx="4" fill="#eef1f6"/><rect x="34" y="504" width="318" height="22" rx="4" fill="#eef1f6"/><rect x="384" y="372" width="350" height="248" rx="8" fill="#fff"/><rect x="456" y="450" width="20" height="92" fill="#1a1a1a"/><rect x="478" y="484" width="20" height="58" fill="#fff"/><rect x="516" y="470" width="20" height="72" fill="#1a1a1a"/><rect x="538" y="500" width="20" height="42" fill="#fff"/><rect x="576" y="440" width="20" height="102" fill="#1a1a1a"/><rect x="598" y="516" width="20" height="26" fill="#fff"/><rect x="636" y="474" width="20" height="68" fill="#1a1a1a"/><rect x="658" y="498" width="20" height="44" fill="#fff"/><rect x="402" y="574" width="12" height="9" fill="#1a1a1a"/><rect x="502" y="574" width="12" height="9" fill="#fff"/><rect x="750" y="372" width="350" height="248" rx="8" fill="#fff"/><rect x="816" y="450" width="22" height="92" fill="#1a1a1a"/><rect x="878" y="466" width="22" height="76" fill="#1a1a1a"/><rect x="940" y="438" width="22" height="104" fill="#1a1a1a"/><rect x="1002" y="462" width="22" height="80" fill="#1a1a1a"/><rect x="768" y="574" width="12" height="9" fill="#1a1a1a"/></g><g font-family="Caveat,cursive" fill="#1a1a1a"><text x="26" y="42" font-size="21" font-weight="600">Dashboard</text><text x="300" y="42" font-size="12.5" fill="#888">Compliance overview &middot; FY 2021-2022</text><text x="780" y="39" font-size="11" fill="#555" text-anchor="middle">Entity A &middot; Entity B &#9662;</text><text x="990" y="39" font-size="12">Carter Smith &#9662;</text><text x="36" y="132" font-size="14.5" font-weight="600">Monthly TDS</text><text x="354" y="132" font-size="11" fill="#888" text-anchor="end">FY 2022-23 ▾</text><text x="63" y="315" font-size="9" fill="#888" text-anchor="middle">194J</text><text x="111" y="315" font-size="9" fill="#888" text-anchor="middle">194H</text><text x="159" y="315" font-size="9" fill="#888" text-anchor="middle">194I</text><text x="207" y="315" font-size="9" fill="#888" text-anchor="middle">194BB</text><text x="255" y="315" font-size="9" fill="#888" text-anchor="middle">194A</text><text x="303" y="315" font-size="9" fill="#888" text-anchor="middle">194C</text><text x="402" y="132" font-size="14.5" font-weight="600">TDS Deposit Status</text><text x="402" y="166" font-size="11" fill="#888">Jan</text><text x="448" y="167" font-size="11">Jay Bhatt — On Time</text><text x="402" y="193" font-size="11" fill="#888">Feb</text><text x="448" y="194" font-size="11">Kriti Shah — On Time</text><text x="402" y="220" font-size="11" fill="#888">Mar</text><text x="448" y="221" font-size="11">Jay Bhatt — On Time</text><text x="402" y="247" font-size="11" fill="#888">Apr</text><text x="448" y="248" font-size="11">Kriti Shah — On Time</text><text x="402" y="274" font-size="11" fill="#888">May</text><text x="402" y="301" font-size="11" fill="#888">Jun</text><text x="448" y="302" font-size="11">Jay Bhatt — On Time</text><text x="768" y="132" font-size="14.5" font-weight="600">Compliance Calendar</text><text x="1086" y="132" font-size="11" fill="#888" text-anchor="end">Oct 2023 ‹ ›</text><text x="780" y="167" font-size="11" fill="#888">7th</text><text x="818" y="167" font-size="11">TDS Payment Due</text><text x="780" y="197" font-size="11" fill="#888">15th</text><text x="818" y="197" font-size="11">TCS Payment — Quarterly</text><text x="780" y="227" font-size="11" fill="#888">15th</text><text x="818" y="227" font-size="11">Compliance Report</text><text x="768" y="270" font-size="10" fill="#999" font-style="italic">upcoming deadlines, no navigation</text><text x="36" y="400" font-size="14.5" font-weight="600">TDS Return Compliance</text><text x="46" y="435" font-size="11">Q1 — On Time ✓</text><text x="340" y="435" font-size="10" fill="#888" text-anchor="end">31 Jul</text><text x="46" y="491" font-size="11">Q3 — Upcoming</text><text x="340" y="491" font-size="10" fill="#888" text-anchor="end">31 Oct</text><text x="46" y="519" font-size="11">Q4 — Upcoming</text><text x="340" y="519" font-size="10" fill="#888" text-anchor="end">31 Dec</text><text x="402" y="400" font-size="14.5" font-weight="600">Year-on-Year TDS</text><text x="477" y="557" font-size="9" fill="#888" text-anchor="middle">194J</text><text x="537" y="557" font-size="9" fill="#888" text-anchor="middle">194H</text><text x="597" y="557" font-size="9" fill="#888" text-anchor="middle">194I</text><text x="657" y="557" font-size="9" fill="#888" text-anchor="middle">194BB</text><text x="420" y="582" font-size="10" fill="#666">FY 23</text><text x="520" y="582" font-size="10" fill="#666">FY 22</text><text x="768" y="400" font-size="14.5" font-weight="600">TDS Expense Breakdown</text><text x="1086" y="400" font-size="11" fill="#888" text-anchor="end">All Sections ▾</text><text x="839" y="557" font-size="9" fill="#888" text-anchor="middle">Rent</text><text x="901" y="557" font-size="9" fill="#888" text-anchor="middle">Repair</text><text x="963" y="557" font-size="9" fill="#888" text-anchor="middle">Ads</text><text x="1025" y="557" font-size="9" fill="#888" text-anchor="middle">Others</text><text x="786" y="582" font-size="10" fill="#666">Deducted</text><text x="886" y="582" font-size="10" fill="#c0392b">Not deducted</text><text x="18" y="766" font-size="12" fill="#666" font-style="italic">CFO opens this one screen and sees all six obligations at once &mdash; no navigating, no asking anyone.</text></g><g><rect x="438" y="262" width="244" height="18" rx="4" fill="none" stroke="#c0392b" stroke-width="1.3"/><text x="448" y="275" font-size="11" fill="#c0392b">Manoj Patel — DELAYED !</text><rect x="34" y="448" width="318" height="22" rx="4" fill="none" stroke="#c0392b" stroke-width="1.3"/><text x="46" y="463" font-size="11" fill="#c0392b">Q2 — Delayed !</text><text x="340" y="463" font-size="10" fill="#c0392b" text-anchor="end">Filed 4 Aug</text><rect x="840" y="514" width="22" height="28" fill="none" stroke="#c0392b" stroke-width="1.2"/><rect x="902" y="527" width="22" height="15" fill="none" stroke="#c0392b" stroke-width="1.2"/><rect x="964" y="534" width="22" height="8" fill="none" stroke="#c0392b" stroke-width="1.2"/><rect x="1026" y="529" width="22" height="13" fill="none" stroke="#c0392b" stroke-width="1.2"/><rect x="868" y="574" width="12" height="9" fill="none" stroke="#c0392b" stroke-width="1.1"/><circle cx="348" cy="124" r="12" fill="#c0392b"/><text x="348" y="128" font-size="13" font-weight="700" fill="#fff" text-anchor="middle" font-family="Satoshi,sans-serif">1</text><text x="348" y="88" font-size="12" fill="#c0392b" text-anchor="end" font-family="Satoshi,sans-serif" font-weight="600">any unusual jump this month?</text><path d="M348,92 L348,111" stroke="#c0392b" stroke-width="1.4" fill="none" marker-end="url(#rfA)"/><circle cx="714" cy="124" r="12" fill="#c0392b"/><text x="714" y="128" font-size="13" font-weight="700" fill="#fff" text-anchor="middle" font-family="Satoshi,sans-serif">2</text><text x="714" y="88" font-size="12" fill="#c0392b" text-anchor="end" font-family="Satoshi,sans-serif" font-weight="600">did we pay on time — and who?</text><path d="M714,92 L714,111" stroke="#c0392b" stroke-width="1.4" fill="none" marker-end="url(#rfA)"/><circle cx="1080" cy="124" r="12" fill="#c0392b"/><text x="1080" y="128" font-size="13" font-weight="700" fill="#fff" text-anchor="middle" font-family="Satoshi,sans-serif">3</text><text x="1080" y="88" font-size="12" fill="#c0392b" text-anchor="end" font-family="Satoshi,sans-serif" font-weight="600">what’s coming up next?</text><path d="M1080,92 L1080,111" stroke="#c0392b" stroke-width="1.4" fill="none" marker-end="url(#rfA)"/><circle cx="348" cy="600" r="12" fill="#c0392b"/><text x="348" y="604" font-size="13" font-weight="700" fill="#fff" text-anchor="middle" font-family="Satoshi,sans-serif">4</text><text x="348" y="644" font-size="12" fill="#c0392b" text-anchor="end" font-family="Satoshi,sans-serif" font-weight="600">did we file every quarter on time?</text><path d="M348,632 L348,613" stroke="#c0392b" stroke-width="1.4" fill="none" marker-end="url(#rfA)"/><circle cx="714" cy="600" r="12" fill="#c0392b"/><text x="714" y="604" font-size="13" font-weight="700" fill="#fff" text-anchor="middle" font-family="Satoshi,sans-serif">5</text><text x="714" y="644" font-size="12" fill="#c0392b" text-anchor="end" font-family="Satoshi,sans-serif" font-weight="600">paying more than last year?</text><path d="M714,632 L714,613" stroke="#c0392b" stroke-width="1.4" fill="none" marker-end="url(#rfA)"/><circle cx="1080" cy="600" r="12" fill="#c0392b"/><text x="1080" y="604" font-size="13" font-weight="700" fill="#fff" text-anchor="middle" font-family="Satoshi,sans-serif">6</text><text x="1080" y="644" font-size="12" fill="#c0392b" text-anchor="end" font-family="Satoshi,sans-serif" font-weight="600">where did we forget to deduct?</text><path d="M1080,632 L1080,613" stroke="#c0392b" stroke-width="1.4" fill="none" marker-end="url(#rfA)"/></g></svg>
+      </div>
+
+      <div class="rationale-block">
+        <p class="rationale-sub" style="margin-top:18px;">Each chart carries a number and a one-line question &mdash; who it&rsquo;s for and what it answers. The chart type just follows from the question.</p>
+        <div class="rationale-cut">
+          <p><b>What I deliberately left off:</b> vendor-level drill-downs, raw transaction tables, and the entire TCS module. All of it is one click away &mdash; none of it on the landing screen. The CFO&rsquo;s first question is &ldquo;are we covered, and where&rsquo;s the risk?&rdquo; &mdash; not &ldquo;show me 10,000 rows.&rdquo; Restraint is the design.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- NDA REVEAL — actual dashboard, heavily blurred -->
+    <div class="nda-block">
+      <div class="nda-frame" aria-label="A blurred preview of the actual CFO dashboard. The full screens are under NDA.">
+        <img src="../assets/techtds-dashboard-real.png" alt="">
+        <div class="nda-overlay">
+          <span class="nda-eyebrow">Reveal &middot; behind the glass</span>
+          <h3>This project is under NDA.</h3>
+          <p>The sketches above became the real platform &mdash; here&rsquo;s a blurred glimpse. If you&rsquo;d like to walk through the full screens and decisions in detail, reach out and I&rsquo;ll happily share them in conversation.</p>
+          <a class="nda-cta" href="mailto:richasain1989@gmail.com">
+            <span>Get in touch</span>
+            <span aria-hidden="true">&rarr;</span>
+          </a>
+        </div>
+      </div>
+      <p class="nda-caption">Built. Approved. Shipped. Just not pictured.</p>
+    </div>
+  </div>
+</section>
+
+<section id="t-outcomes" class="section-anchor">
+  <div class="wrap">
+    <div class="chapter"><span class="chapter-num">05 &mdash; What changed</span><div class="chapter-line"></div></div>
+    <h2>The client approved V2 and the team built it.</h2>
+    <p>I&rsquo;m not going to invent numbers. I&rsquo;ve moved on from the project since, and it&rsquo;s under NDA anyway, so I don&rsquo;t have live usage data to wave around. What I can do is tell you what V2 does that V1 couldn&rsquo;t &mdash; and how you&rsquo;d check, just by talking to people, whether it&rsquo;s actually working.</p>
+
+    <h3 class="outcome-h3">What V2 does that V1 couldn&rsquo;t</h3>
+    <ul class="outcome-list">
+      <li>Pulls <strong>all the input files</strong> into one merged table. V1 pulled in only some of them.</li>
+      <li>Generates <strong>four challan types</strong>. V1 had one.</li>
+      <li>Routes every payment through a <strong>CFO approval step</strong>. V1 had no approval gate at all.</li>
+      <li>Flags reconciliation mismatches <strong>the moment files are uploaded</strong>. V1 only surfaced them at year-end audit.</li>
+      <li>Lets vendors <strong>download their own Form 16A</strong>. V1 needed the tax team to email each one.</li>
+      <li>Shows every compliance obligation on <strong>one dashboard</strong>. V1 had no dashboard.</li>
+    </ul>
+
+    <h3 class="outcome-h3">How you could check if it&rsquo;s working &mdash; without analytics</h3>
+    <ol class="outcome-checks">
+      <li><strong>Ask the tax manager:</strong> &ldquo;How long does one quarter take you now?&rdquo;</li>
+      <li><strong>Ask the CFO:</strong> &ldquo;Can you see where every payment stands in one screen?&rdquo;</li>
+      <li><strong>Ask a vendor:</strong> &ldquo;Did you get your Form 16A without chasing anyone?&rdquo;</li>
+    </ol>
+    <p style="margin-top:8px;font-size:14px;color:var(--mid);">If those three answers are &ldquo;less than before,&rdquo; &ldquo;yes,&rdquo; and &ldquo;yes&rdquo; &mdash; the platform is doing its job.</p>
+    <p class="bridge">One last thing &mdash; what I&rsquo;d do differently if I had to start over.</p>
+  </div>
+</section>
+
+<section class="closing" id="t-reflection">
+  <div class="wrap">
+    <div class="chapter" style="margin-bottom:24px;"><span class="chapter-num">06 &mdash; Reflection</span></div>
+    <h2>What this project taught me that no course could.</h2>
+    <div class="reflect-list">
+      <div class="reflect-item">
+        <span class="reflect-num">01</span>
+        <div>
+          <h3 class="reflect-title">Prior knowledge is both an asset and a trap.</h3>
+          <p class="reflect-body">The experience I brought from a similar project made me confident fast &mdash; maybe too fast. It also planted assumptions I never stopped to check. It was the same domain, but a genuinely different problem, and I didn&rsquo;t see that early enough.</p>
+        </div>
+      </div>
+      <div class="reflect-item">
+        <span class="reflect-num">02</span>
+        <div>
+          <h3 class="reflect-title">In a regulated product, the spec is the user research.</h3>
+          <p class="reflect-body">There were no users to interview here. The closest thing to them was that 100-page compliance document. When I treated it as background reading, we got V1. Reading it as the actual brief is what produced V2.</p>
+        </div>
+      </div>
+      <div class="reflect-item">
+        <span class="reflect-num">03</span>
+        <div>
+          <h3 class="reflect-title">The V1 failure was the most valuable iteration.</h3>
+          <p class="reflect-body">Honestly, getting rejected was the best thing that happened to the project. If they&rsquo;d accepted V1, we&rsquo;d have built everything on a foundation that was quietly wrong. Being sent back to the start forced the rethink that made the product actually work.</p>
+        </div>
+      </div>
+    </div>
+    <div class="byline"><strong>UX/UI Designer</strong> &mdash; Tax Filing Platform &middot; Built from scratch</div>
+
+    <a class="next-case" href="case-study-1.html" aria-label="Open next case study: Sphara">
+      <div>
+        <p class="nc-eyebrow">Next case study</p>
+        <p class="nc-title">Sphara</p>
+        <p class="nc-meta">Emergency response app &middot; Telangana, 2019</p>
+      </div>
+      <div class="nc-arrow" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M5 13L13 5M13 5H7M13 5V11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </a>
+  </div>
+</section>
+
+<!-- Fullscreen modal for sitemap / user journey -->
+<div class="artefact-modal" id="artefact-modal" role="dialog" aria-modal="true" aria-labelledby="artefact-modal-label" hidden>
+  <span class="artefact-modal-label" id="artefact-modal-label">Artefact</span>
+  <button class="artefact-modal-close" type="button" aria-label="Close fullscreen artefact">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+  </button>
+  <div class="artefact-modal-stage" id="artefact-modal-stage">
+    <img id="artefact-modal-img" alt="">
+  </div>
+  <span class="artefact-modal-hint">Drag or scroll to pan &middot; press Esc to close</span>
+</div>
+
+<script>
+  var nav = document.querySelector('.left-nav');
+  var hero = document.getElementById('t-intro');
+  var links = document.querySelectorAll('.left-nav a[href^="#t-"]');
+
+  function onScroll(){
+    var heroBottom = hero ? hero.offsetTop + hero.offsetHeight : 400;
+    var y = window.scrollY;
+    if(y > heroBottom - 80){ nav.classList.add('visible'); }
+    else { nav.classList.remove('visible'); }
+
+    var scrollY = y + 100;
+    var current = null;
+    var sections = document.querySelectorAll('[id^="t-"]');
+    sections.forEach(function(s){
+      if(s.offsetTop <= scrollY) current = s.id;
+    });
+    links.forEach(function(l){
+      if(l.getAttribute('href') === '#' + current){ l.classList.add('active'); }
+      else { l.classList.remove('active'); }
+    });
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+</script>
+
+<script>
+  // Fullscreen modal for sitemap / user journey
+  (function(){
+    var modal = document.getElementById('artefact-modal');
+    var label = document.getElementById('artefact-modal-label');
+    var img   = document.getElementById('artefact-modal-img');
+    var stage = document.getElementById('artefact-modal-stage');
+    var closeBtn = modal.querySelector('.artefact-modal-close');
+    if(!modal) return;
+
+    var ARTEFACTS = {
+      sitemap: {
+        src: '../assets/techtds-sitemap.png',
+        label: 'The real sitemap',
+        alt:   'The actual platform sitemap — 30+ surfaces grouped under Master Files, Processed Files and Others.'
+      },
+      journey: {
+        src: '../assets/techtds-user-journey.png',
+        label: 'The real user journey',
+        alt:   'The actual platform user journey — every touchpoint from login to certificate distribution, with inputs, decisions, system actions and outputs.'
+      }
+    };
+
+    function open(kind){
+      var a = ARTEFACTS[kind];
+      if(!a) return;
+      img.src = a.src;
+      img.alt = a.alt;
+      label.textContent = a.label;
+      modal.hidden = false;
+      modal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      stage.scrollLeft = 0; stage.scrollTop = 0;
+    }
+    function close(){
+      modal.classList.remove('open');
+      modal.hidden = true;
+      document.body.style.overflow = '';
+      img.removeAttribute('src');
+    }
+
+    document.querySelectorAll('[data-open-artefact]').forEach(function(btn){
+      btn.addEventListener('click', function(){ open(btn.getAttribute('data-open-artefact')); });
+    });
+    closeBtn.addEventListener('click', close);
+    modal.addEventListener('click', function(e){
+      if(e.target === modal) close();
+    });
+    document.addEventListener('keydown', function(e){
+      if(e.key === 'Escape' && modal.classList.contains('open')) close();
+    });
+
+    // Drag-to-pan inside the modal stage
+    var down = false, sx = 0, sy = 0, scl = 0, sct = 0;
+    stage.addEventListener('mousedown', function(e){
+      down = true; stage.classList.add('grabbing');
+      sx = e.pageX; sy = e.pageY;
+      scl = stage.scrollLeft; sct = stage.scrollTop;
+    });
+    document.addEventListener('mouseup', function(){ down = false; stage.classList.remove('grabbing'); });
+    stage.addEventListener('mousemove', function(e){
+      if(!down) return;
+      e.preventDefault();
+      stage.scrollLeft = scl - (e.pageX - sx);
+      stage.scrollTop  = sct - (e.pageY - sy);
+    });
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case Study — Audit Management Tool</title>
+<link rel="preconnect" href="https://api.fontshare.com"><link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900,1&display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Caveat:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#1C1C1A;--bg:#F7F8FA;--paper:#FFFFFF;--navy:#1C1C1A;--navy-dark:#000000;--navy-soft:#EEEFEA;--orange:#1C1C1A;--orange-dark:#000000;--orange-light:#EEEFEA;--mid:#6B6B65;--rule:#E8EBEF;--white:#FFFFFF;--green:#27ae60;--red:#c0392b;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background-color:var(--bg);background-image:linear-gradient(to right, rgba(28,30,42,0.06) 1px, transparent 1px),linear-gradient(to bottom, rgba(28,30,42,0.06) 1px, transparent 1px);background-size:36px 36px;background-attachment:scroll;color:var(--ink);font-family:"Satoshi",sans-serif;font-size:17px;line-height:1.75;-webkit-font-smoothing:antialiased;padding-left:168px;}
+  .left-nav{position:fixed;top:0;left:0;width:168px;height:100vh;padding:40px 0 24px 24px;display:flex;flex-direction:column;gap:2px;background:var(--bg);z-index:100;overflow-y:auto;opacity:1;visibility:visible;pointer-events:auto;}
+  .left-nav a:not(.nav-brand){opacity:0;visibility:hidden;transition:opacity .35s ease, visibility .35s;}
+  .left-nav.visible a:not(.nav-brand){opacity:1;visibility:visible;}
+  .left-nav.visible{opacity:1;visibility:visible;pointer-events:auto;}
+  .left-nav .nav-brand{font-family:"Satoshi",sans-serif;font-size:13px;font-weight:400;color:var(--mid);margin-bottom:24px;padding-left:12px;display:block;text-decoration:none;transition:color 0.15s;}
+  .left-nav .nav-brand:hover{color:var(--ink);}
+  .left-nav .nav-brand::before{content:'';margin-right:0;transition:content 0.15s,margin 0.15s;}
+  .left-nav .nav-brand:hover::before{content:'← ';margin-right:2px;}
+  .left-nav a{font-family:"Satoshi",sans-serif;font-size:14px;color:var(--mid);text-decoration:none;padding:10px 12px;transition:color 0.15s;display:block;line-height:1.3;min-height:24px;}
+  .left-nav a:hover{color:var(--ink);}
+  .left-nav a.active{color:var(--navy);font-weight:600;}
+  .section-anchor{scroll-margin-top:32px;}
+  @media(max-width:760px){.left-nav{display:none;}body{padding-left:0;}}
+  .hero{padding:72px 24px 80px;max-width:820px;margin:0 auto;}
+  .hero-eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:28px;}
+  .hero-logo{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+  .hero-eyebrow-text{display:flex;flex-direction:column;gap:1px;}
+  .hero-company{font-size:14px;font-weight:600;color:var(--ink);}
+  .hero-category{font-size:12px;color:var(--mid);}
+  .hero-headline{font-family:"Satoshi",sans-serif;font-size:clamp(2rem,4vw,3.2rem);font-weight:700;line-height:1.15;color:var(--ink);margin-bottom:32px;max-width:720px;}
+  .hero-body{font-size:17px;line-height:1.7;color:var(--mid);max-width:660px;margin-bottom:40px;font-weight:300;}
+  .hero-body strong{color:var(--ink);font-weight:500;}
+  .meta-row{display:flex;gap:0;flex-wrap:wrap;border-top:1px solid var(--rule);padding-top:28px;}
+  .meta-item{padding:0 28px 0 0;margin-right:28px;margin-bottom:16px;}
+  
+  .meta-label{font-size:10px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--mid);display:block;margin-bottom:4px;}
+  .meta-value{font-size:14px;font-weight:600;color:var(--ink);}
+  .metrics-section{padding:60px 0;background:var(--paper);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);}
+  .metrics-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;margin-top:36px;}
+  .metric-item{padding:0 36px 0 0;margin-right:36px;border-right:1px solid var(--rule);}
+  .metric-item:last-child{border-right:none;margin-right:0;padding-right:0;}
+  .metric-label{font-size:10px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--mid);display:block;margin-bottom:10px;}
+  .metric-number{font-family:"Satoshi",sans-serif;font-size:clamp(2.2rem,4vw,3rem);font-weight:700;color:var(--ink);line-height:1;margin-bottom:10px;display:block;}
+  .metric-desc{font-size:13px;color:var(--mid);line-height:1.5;}
+  .testimonial-block{margin:36px 0 0;padding:24px 28px;background:var(--white);border:0.5px solid var(--rule);border-radius:10px;position:relative;}
+  .testimonial-block::before{content:open-quote;font-family:"DM Serif Display",serif;font-size:72px;color:var(--orange-light);position:absolute;top:-10px;left:20px;line-height:1;speak:none;}
+  .testimonial-quote{font-family:"DM Serif Display",serif;font-size:1rem;font-style:italic;color:var(--ink);line-height:1.6;margin-bottom:18px;position:relative;z-index:1;}
+  .testimonial-quote strong{font-style:normal;color:var(--orange-dark);}
+  .testimonial-meta{display:flex;align-items:center;gap:12px;padding-top:16px;}
+  .testimonial-avatar{width:40px;height:40px;border-radius:50%;background:var(--orange-light);border:1.5px solid var(--orange);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--orange-dark);flex-shrink:0;}
+  .testimonial-info{flex:1;}
+  .testimonial-name{font-size:13px;font-weight:600;color:var(--ink);display:block;margin-bottom:2px;}
+  .testimonial-role{font-size:11px;color:var(--mid);display:block;margin-bottom:3px;}
+  .testimonial-via{font-size:11px;color:var(--mid);display:flex;align-items:center;gap:6px;}
+  .linkedin-badge{display:inline-flex;align-items:center;gap:4px;background:#0A66C2;color:#fff!important;font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;text-decoration:none;}
+  .wrap{max-width:820px;margin:0 auto;padding:0 24px;}
+  section{padding:56px 0;}
+  section:last-child{border-bottom:none;}
+  .chapter{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+  .chapter-num{display:inline-block;font-family:"Satoshi",sans-serif;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--navy);background:var(--navy-soft);padding:6px 12px;border-radius:6px;white-space:nowrap;}
+  .chapter-line{display:none;}
+  h2{font-family:"Satoshi",sans-serif;font-size:clamp(1.6rem,3.5vw,2.2rem);font-weight:700;line-height:1.15;margin-bottom:20px;color:var(--ink);}
+  h3{font-family:"Satoshi",sans-serif;font-size:1rem;font-weight:700;margin-bottom:10px;color:var(--ink);}
+  p{margin-bottom:20px;color:#3a3a3a;font-size:17px;line-height:1.8;}
+  p:last-child{margin-bottom:0;}
+  .pullquote{border-left:2px solid var(--navy);padding:12px 20px;margin:28px 0;}
+  .pullquote p{font-family:"DM Serif Display",serif;font-size:1rem;font-style:italic;color:var(--ink);margin:0;}
+  .gaps-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px 40px;margin-top:32px;}
+  @media(max-width:640px){.gaps-grid{grid-template-columns:1fr;}}
+  .gap-card{display:flex;flex-direction:column;gap:0;}
+  .gap-label{font-size:13px;font-weight:400;color:var(--mid);margin-bottom:8px;}
+  .gap-title{font-size:1.15rem;font-weight:700;color:var(--ink);line-height:1.25;margin-bottom:14px;}
+  .gap-desc{font-size:15px;color:#555;line-height:1.75;margin-bottom:20px;}
+  .gap-img-wrap{background:#F5F5F5;border-radius:10px;padding:16px;margin-bottom:12px;}
+  .gap-img-wrap img{width:100%;border-radius:6px;display:block;}
+  .gap-source{font-size:11px;color:#767676;margin-top:6px;text-align:center;}
+  .gap-response{font-size:13px;color:#555;line-height:1.6;display:flex;gap:8px;align-items:flex-start;}
+  .gap-response-arrow{flex-shrink:0;color:var(--ink);font-weight:600;}
+  .exp-intro{background:#F5F5F5;border-radius:8px;padding:16px 20px;margin-bottom:20px;}
+  .exp-intro p{font-size:13px;color:var(--mid);margin:0;}
+  .exp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+  @media(max-width:560px){.exp-grid{grid-template-columns:1fr 1fr;}}
+  .exp-card{text-align:center;}
+  .exp-card img{width:100%;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.1);border:0.5px solid var(--rule);}
+  .exp-badge{display:inline-block;background:var(--orange-light);color:var(--orange);font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:2px 7px;border-radius:3px;margin-bottom:4px;border:0.5px solid #fdd5bf;}
+  .exp-label{font-size:10px;color:var(--mid);margin-top:6px;line-height:1.4;display:block;}
+  .goal-list{list-style:none;margin-top:18px;}
+  .goal-list li{display:flex;gap:12px;padding:9px 0;align-items:flex-start;}
+  
+  .check{color:#888;font-size:15px;flex-shrink:0;margin-top:2px;}
+  .goal-list li p{margin:0;font-size:14px;}
+  .impact-list{list-style:none;margin-top:20px;}
+  .impact-list li{display:flex;gap:12px;padding:12px 0;align-items:flex-start;}
+  
+  .idot{width:7px;height:7px;border-radius:50%;background:var(--orange);margin-top:9px;flex-shrink:0;}
+  .impact-list li p{margin:0;font-size:14px;}
+  .eu-section{margin-top:16px;}
+  .eu-section h3{font-family:"Satoshi",sans-serif;font-size:1rem;font-weight:700;color:var(--ink);margin-bottom:24px;}
+  .eu-grid{display:flex;gap:18px;overflow-x:auto;padding-bottom:10px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;}
+  .eu-grid::-webkit-scrollbar{height:3px;}
+  .eu-grid::-webkit-scrollbar-track{background:var(--rule);border-radius:2px;}
+  .eu-grid::-webkit-scrollbar-thumb{background:var(--orange);border-radius:2px;}
+  .eu-card{flex:0 0 150px;scroll-snap-align:start;}
+  .eu-label{font-family:"Satoshi",sans-serif;font-size:12px;font-weight:600;color:var(--ink);margin-top:10px;margin-bottom:0;}
+  .eu-desc{font-family:"Satoshi",sans-serif;font-size:11px;color:var(--mid);line-height:1.5;margin-top:3px;margin-bottom:0;}
+  .closing{padding:60px 0 48px;}
+  .closing h2{margin:0 0 14px;font-family:"Satoshi",sans-serif;}
+  .closing p{margin:0 0 20px;color:var(--mid);font-size:15px;text-align:justify;hyphens:auto;-webkit-hyphens:auto;}
+  .closing p:last-of-type{margin-bottom:0;}
+  .byline{margin-top:40px;padding-top:24px;font-size:12px;color:var(--mid);}
+  .byline strong{color:var(--ink);}
+
+  /* ── Next case study CTA ── */
+  .next-case {
+    display:flex; align-items:center; justify-content:space-between;
+    margin-top:48px; padding:28px 32px;
+    background:var(--ink); color:var(--paper);
+    text-decoration:none;
+    border-radius:12px;
+    gap:24px;
+    transition:transform .25s ease, background .25s ease;
+  }
+  .next-case:hover { transform:translateY(-2px); background:#000; }
+  .next-case .nc-eyebrow {
+    font-size:11px; letter-spacing:0.12em; text-transform:uppercase;
+    opacity:0.62; margin:0 0 6px;
+  }
+  .next-case .nc-title {
+    font-size:1.4rem; font-weight:700; line-height:1.2; margin:0; color:var(--paper);
+  }
+  .next-case .nc-meta {
+    font-size:12px; opacity:0.7; margin:6px 0 0; color:var(--paper);
+  }
+  .next-case .nc-arrow {
+    width:48px; height:48px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.12);
+    display:grid; place-items:center;
+    flex-shrink:0;
+    transition:transform .25s ease, background .25s ease;
+  }
+  .next-case:hover .nc-arrow { transform:translate(3px,-3px); background:rgba(255,255,255,0.22); }
+
+  /* ── Before/After comparison slider ── */
+  .compare {
+    position: relative;
+    display: block;
+    width: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    --pos: 50%;
+    background: #F5F5F5;
+    margin: 0;
+    cursor: ew-resize;
+    touch-action: pan-y;
+  }
+  .compare img.compare-base { display: block; width: 100%; height: auto; }
+  .compare .compare-after {
+    position: absolute; inset: 0;
+    clip-path: inset(0 0 0 var(--pos));
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .compare .compare-after img {
+    display: block; width: 100%; height: 100%; object-fit: contain; object-position: top center;
+    background: var(--paper);
+  }
+  .compare .compare-label {
+    position: absolute; top: 12px;
+    padding: 5px 11px;
+    background: rgba(255,255,255,0.95);
+    border-radius: 4px;
+    font-size: 12px; font-weight: 600; letter-spacing: 0.04em;
+    color: var(--ink);
+    pointer-events: none;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+    z-index: 3;
+  }
+  .compare .compare-label-before { left: 12px; }
+  .compare .compare-label-after  { right: 12px; }
+  .compare .compare-handle {
+    position: absolute; top: 0; bottom: 0;
+    left: var(--pos);
+    width: 2px;
+    background: #fff;
+    transform: translateX(-50%);
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.12), 0 0 14px rgba(0,0,0,0.18);
+    pointer-events: none;
+    z-index: 2;
+  }
+  .compare .compare-knob {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.06);
+    display: flex; align-items: center; justify-content: center;
+    pointer-events: none;
+  }
+  .compare:focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 3px;
+  }
+
+  /* ── Accessibility ── */
+  :focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 3px;
+    border-radius: 3px;
+  }
+  .left-nav a:focus-visible {
+    outline-offset: -2px;
+  }
+  .skip-link {
+    position: absolute;
+    top: -40px; left: 12px;
+    background: var(--ink); color: var(--paper);
+    padding: 10px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 13px; font-weight: 600;
+    z-index: 1000;
+    transition: top 0.2s ease;
+  }
+  .skip-link:focus { top: 12px; }
+
+  .hero-icon{width:64px;height:64px;border-radius:14px;background:var(--navy);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff;margin-bottom:48px;font-family:"Satoshi",sans-serif;}
+  .hero-cols{display:grid;grid-template-columns:1fr 200px;gap:48px;align-items:start;}
+  @media(max-width:680px){.hero-cols{grid-template-columns:1fr;}}
+  .hero-badge{display:inline-flex;align-items:center;gap:8px;font-family:"Satoshi",sans-serif;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--navy);background:var(--navy-soft);padding:7px 14px;border-radius:999px;white-space:nowrap;margin-bottom:22px;}
+  .hero-title{font-family:"Satoshi",sans-serif;font-size:clamp(1.7rem,3.8vw,2.4rem);font-weight:700;color:var(--ink);margin-bottom:14px;line-height:1.15;letter-spacing:-0.01em;}
+  .hero-sub{font-family:"DM Serif Display",serif;font-style:italic;font-size:clamp(1.15rem,2.1vw,1.45rem);line-height:1.4;color:var(--mid);margin:0 0 28px;max-width:600px;}
+  .hero-body{font-size:16px;line-height:1.75;color:#555;margin-bottom:16px;}
+  .hero-body strong{color:var(--ink);font-weight:600;}
+  .hero-right{padding-top:4px;}
+  .hero-right-label{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:4px;}
+  .hero-right-value{font-size:14px;color:#555;margin-bottom:20px;}
+
+
+  .decision-item{margin-bottom:56px;}
+  .decision-screens{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px;align-items:start;}
+  .decision-screens > div{display:flex;flex-direction:column;}
+  .decision-screens img{display:block;width:100%;height:auto;border-radius:8px;image-rendering:-webkit-optimize-contrast;}
+  @media(max-width:640px){.decision-screens{grid-template-columns:1fr;}}
+  .obs-item{margin-bottom:40px;}
+  .deloitte-green{color:#00A651;}
+
+  /* ── NDA blurred-screen reveal (matches TechTDS) ── */
+  .nda-block { margin: 8px 0 0; }
+  .nda-frame {
+    position: relative; border-radius: 14px; overflow: hidden;
+    background: #1c1c1a; aspect-ratio: 16 / 9;
+    box-shadow: 0 30px 60px -30px rgba(15,18,28,.32);
+  }
+  .nda-faux {
+    position: absolute; inset: -28px;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.12) 0 36px, transparent 36px),
+      linear-gradient(90deg, rgba(255,255,255,.09) 0 130px, transparent 130px),
+      repeating-linear-gradient(180deg, transparent 0 20px, rgba(255,255,255,.06) 20px 22px, transparent 22px 52px);
+    filter: blur(13px); opacity: .55; pointer-events: none;
+  }
+  .nda-frame::after {
+    content: ""; position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 70% 60% at 50% 50%, rgba(0,0,0,0) 0%, rgba(0,0,0,.32) 100%),
+      linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(0,0,0,0.18) 100%);
+    pointer-events: none;
+  }
+  .nda-overlay {
+    position: absolute; left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center; z-index: 2; padding: 0 24px; max-width: 520px; color: #fff;
+  }
+  .nda-overlay .nda-eyebrow {
+    display: inline-block; font-family: "Satoshi", sans-serif;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase;
+    background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.28);
+    padding: 6px 12px; border-radius: 999px;
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    color: rgba(255,255,255,0.95); margin-bottom: 18px; white-space: nowrap;
+  }
+  .nda-overlay h3 {
+    font-family: "Satoshi", sans-serif; font-size: clamp(1.6rem, 3.2vw, 2.3rem);
+    font-weight: 700; line-height: 1.15; margin: 0 0 14px; color: #fff;
+  }
+  .nda-overlay p { font-size: 15px; line-height: 1.55; color: rgba(255,255,255,0.78); margin: 0 0 18px; }
+  .nda-cta {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: #fff; color: var(--ink); text-decoration: none;
+    font-size: 13px; font-weight: 600; padding: 10px 18px; border-radius: 999px; white-space: nowrap;
+    transition: transform .25s ease;
+  }
+  .nda-cta:hover { transform: translateY(-2px); }
+  .nda-caption { text-align: center; font-size: 13px; color: var(--mid); margin: 16px 0 0; font-style: italic; }
+
+  /* Clean decision figures (before → after) */
+  .dec-fig{margin:2rem 0 1.5rem;border:1px solid var(--rule);border-radius:12px;background:#fff;padding:26px 24px;}
+  .dec-grid{display:grid;grid-template-columns:1fr 40px 1fr;align-items:stretch;gap:18px;}
+  @media(max-width:680px){.dec-grid{grid-template-columns:1fr;gap:14px;}}
+  .dec-col{display:flex;flex-direction:column;gap:12px;}
+  .dec-cap{display:flex;align-items:center;gap:8px;font-family:"Satoshi",sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin:0;}
+  .dec-cap .dot{width:8px;height:8px;border-radius:50%;flex:none;}
+  .dec-cap.bad{color:#A85636;} .dec-cap.bad .dot{background:#C2643F;}
+  .dec-cap.good{color:#3F7A56;} .dec-cap.good .dot{background:#5E8C6A;}
+  .dec-mid{display:flex;align-items:center;justify-content:center;color:#b4b8c0;font-size:20px;}
+  @media(max-width:680px){.dec-mid{height:24px;transform:rotate(90deg);}}
+  .dec-mock{flex:1;border:1px solid var(--rule);border-radius:10px;background:#FBFAF7;padding:14px;display:flex;flex-direction:column;gap:9px;justify-content:center;}
+  .dec-foot{font-size:13px;color:var(--mid);line-height:1.5;margin:0;}
+  .uiw{border:1px solid #E2E0DA;border-radius:7px;overflow:hidden;background:#fff;}
+  .uiw .bar{height:8px;background:#EFEDE7;}
+  .uiw .flex{display:flex;}
+  .uiw .side{width:62px;background:#1C1C1A;color:#fff;padding:10px 8px;display:flex;flex-direction:column;gap:3px;}
+  .uiw .side b{font-family:"Satoshi",sans-serif;font-size:10px;}
+  .uiw .side small{font-size:9px;color:#B8B6B0;}
+  .uiw .top{display:flex;gap:10px;background:#1C1C1A;color:#fff;padding:7px 10px;font-family:"Satoshi",sans-serif;font-size:9.5px;}
+  .uiw .top span{opacity:.85;}
+  .uiw .ct{flex:1;padding:12px;display:flex;flex-direction:column;gap:6px;}
+  .uiw .ct.tight{max-width:118px;}
+  .uiw .ct small{font-family:"Satoshi",sans-serif;font-size:10px;color:#9a978f;margin-top:2px;}
+  .ln{height:7px;border-radius:3px;background:#E6E3DC;}
+  .ln.short{width:55%;}
+  .tabs{display:flex;flex-wrap:wrap;gap:6px;}
+  .tab{font-family:"Satoshi",sans-serif;font-size:10.5px;color:#6B6B65;background:#F0EEE8;border:1px solid #E2E0DA;border-radius:6px;padding:6px 9px;white-space:nowrap;}
+  .tab.hot{background:#1C1C1A;color:#fff;border-color:#1C1C1A;}
+  .tab.warn{border-color:#C2643F;color:#A85636;background:#fff;}
+  .up{border:1px dashed #C9C5BC;border-radius:7px;padding:9px 11px;display:flex;align-items:center;justify-content:space-between;font-family:"Satoshi",sans-serif;font-size:10.5px;color:#6B6B65;}
+  .up .b{background:#1C1C1A;color:#fff;border-radius:5px;padding:4px 10px;font-size:10px;}
+  .prog{height:7px;border-radius:4px;background:#ECEAE5;overflow:hidden;}
+  .prog i{display:block;height:100%;width:100%;background:#5E8C6A;}
+  .done{display:flex;align-items:center;gap:6px;font-family:"Satoshi",sans-serif;font-size:10.5px;color:#3F7A56;font-weight:600;}
+  .done .ck{display:inline-flex;width:14px;height:14px;border-radius:50%;background:#5E8C6A;color:#fff;align-items:center;justify-content:center;font-size:9px;}
+  .tbl{display:flex;flex-direction:column;border:1px solid #E2E0DA;border-radius:6px;overflow:hidden;}
+  .tbl .tr{display:flex;align-items:center;justify-content:space-between;padding:7px 9px;font-family:"Satoshi",sans-serif;font-size:10px;color:#3a3a34;}
+  .tbl.flat .tr+.tr{border-top:1px solid #EEEBE4;}
+  .tbl.striped .tr:nth-child(even){background:#F4F2EC;}
+  .bdg{font-size:8.5px;padding:2px 8px;border-radius:10px;background:#E4E1DA;color:#8a8780;white-space:nowrap;}
+  .bdg.g{background:#E3EDE2;color:#3F7A56;} .bdg.a{background:#F3E7D2;color:#946321;} .bdg.n{background:#ECEAE5;color:#8a8780;}
+  .jump{align-self:flex-start;font-family:"Satoshi",sans-serif;font-size:10px;color:#3a3a34;border:1px solid #D8D5CE;border-radius:6px;padding:5px 9px;}
+  .brow{display:flex;flex-wrap:wrap;gap:8px;}
+  .own{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:2px;}
+  .own .chip{font-family:"Satoshi",sans-serif;font-size:10px;border:1px solid #D8D5CE;border-radius:6px;padding:5px 9px;color:#3a3a34;}
+  .own .sep{color:#b4b8c0;}
+
+
+  .dt{width:100%;border-collapse:collapse;font-family:"Satoshi",sans-serif;font-size:9.5px;background:#fff;}
+  .dt th{text-align:left;font-weight:700;color:#6B6B65;padding:7px 9px;font-size:8px;letter-spacing:.04em;text-transform:uppercase;}
+  .dt td{padding:6px 9px;color:#3a3a34;white-space:nowrap;}
+  .dt .num{text-align:right;font-variant-numeric:tabular-nums;}
+  .dt.flat th{border-bottom:1px solid #E2E0DA;}
+  .dt.flat td{border-bottom:1px solid #EEEBE4;}
+  .dt.flat .num{text-align:left;}
+  .dt.nice thead{background:#E7EFE6;}
+  .dt.nice th{color:#3F5C49;}
+  .dt.nice td{padding:8px 9px;}
+  .dt.nice tbody tr:nth-child(even){background:#F4F2EC;}
+
+
+  .dt2{width:100%;border-collapse:separate;border-spacing:0;font-family:"Satoshi",sans-serif;font-size:9px;}
+  .dt2 thead{background:#EAF1EC;}
+  .dt2 th{font-weight:700;font-size:7.5px;color:#5f6b62;text-align:left;padding:7px 6px;vertical-align:bottom;line-height:1.25;}
+  .dt2 td{padding:5px 6px;}
+  .dt2 tbody tr:nth-child(even){background:#F6F5F1;}
+  .cellfield{display:flex;align-items:center;justify-content:space-between;gap:5px;background:#fff;border:1px solid #E3E6E2;border-radius:6px;padding:5px 7px;color:#3a3a34;white-space:nowrap;}
+  .cellfield .chev{color:#9aa1ab;font-size:8px;}
+  .snpill{display:inline-flex;align-items:center;justify-content:center;min-width:15px;height:15px;border:1px solid #E2E0DA;border-radius:5px;font-size:8px;color:#3a3a34;background:#fff;padding:0 3px;}
+  .cbx{width:11px;height:11px;border:1px solid #C9C5BC;border-radius:3px;display:inline-block;vertical-align:middle;}
+
+
+  .teamhead{font-family:"Satoshi",sans-serif;font-size:8.5px;font-weight:700;color:#fff;background:#94AC6B;border-radius:5px;padding:5px 8px;margin-bottom:9px;}
+  .teamgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+  .lvl{display:flex;flex-direction:column;gap:2px;}
+  .lvl small{font-family:"Satoshi",sans-serif;font-size:7px;color:#8a8780;}
+  .stepper{display:flex;flex-direction:column;}
+  .step{display:flex;gap:9px;align-items:flex-start;padding:9px 2px;}
+  .step+.step{border-top:1px dashed #E2E0DA;}
+  .stepnum{width:18px;height:18px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-family:"Satoshi",sans-serif;font-size:9px;font-weight:700;}
+  .stepnum.done{background:#5E8C6A;color:#fff;}
+  .stepnum.now{background:#1C1C1A;color:#fff;}
+  .stepnum.next{background:#ECEAE5;color:#8a8780;}
+  .steptx b{font-family:"Satoshi",sans-serif;font-size:10px;color:#1C1C1A;display:block;line-height:1.3;}
+  .steptx small{font-family:"Satoshi",sans-serif;font-size:8.5px;color:#6B6B65;}
+
+</style>
+</head>
+<body>
+<a href="#d-intro" class="skip-link">Skip to content</a>
+<nav class="left-nav" aria-label="Case study sections">
+  <a href="../index.html" class="nav-brand">Home</a>
+  <a href="#d-intro">Intro</a>
+  <a href="#d-overview">Overview</a>
+  <a href="#d-observations">Observations</a>
+  <a href="#d-research">User Research</a>
+  <a href="#d-decisions">Decisions</a>
+  <a href="#d-results">Results</a>
+  <a href="#d-reflection">Reflection</a>
+</nav>
+
+<!-- HERO -->
+
+<div class="hero" id="d-intro">
+  <div class="hero-icon">A</div>
+  <div class="hero-cols">
+    <div class="hero-left">
+      <span class="hero-badge">Case Study &middot; Enterprise UX</span>
+      <h1 class="hero-title">Audit Management Tool</h1>
+      <p class="hero-sub">Redesigning the daily workspace three tax consultants lived inside &mdash; without making them relearn it.</p>
+      <p class="hero-body"><strong>Three consultants were uploading the same file three times.</strong> Nobody had told them not to &mdash; the system just never said anything had happened. That was the first thing I noticed, and it told me what kind of project this was going to be.</p>
+      <p class="hero-body">The client asked my team to redesign the platform, the tool their tax consultants spent most of their working day inside. The brief asked for two things: clean up the friction in the existing screens, and fold new features in without making anyone re-learn the product.</p>
+      <p class="hero-body">I had never touched financial compliance before. So before I drew anything, I gave myself one rule: shut up and watch.</p>
+    </div>
+    <div class="hero-right">
+      <p class="hero-right-label">Role</p>
+      <p class="hero-right-value">UX/UI Designer</p>
+      <p class="hero-right-label">Client</p>
+      <p class="hero-right-value">Confidential &middot; NDA</p>
+      <p class="hero-right-label" style="color:var(--mid);">Tools</p>
+      <p class="hero-right-value" style="color:var(--mid);">Figma</p>
+      <p class="hero-right-value" style="margin-top:24px;">1 Month</p>
+    </div>
+  </div>
+</div>
+
+<!-- PROJECT SCOPE -->
+<div class="metrics-section" id="d-overview">
+  <div class="wrap">
+    <div class="chapter"><span class="chapter-num">Project Scope</span><div class="chapter-line"></div></div>
+    <div class="metrics-grid">
+      <div class="metric-item">
+        <span class="metric-label">Friction Points Solved</span>
+        <span class="metric-number">5 of 5</span>
+        <p class="metric-desc">Every problem identified during research was addressed in the final design.</p>
+      </div>
+      <div class="metric-item">
+        <span class="metric-label">Workflow Steps Reordered</span>
+        <span class="metric-number">3</span>
+        <p class="metric-desc">Task steps resequenced to match the real order of work consultants follow daily.</p>
+      </div>
+      <div class="metric-item">
+        <span class="metric-label">Design Decisions</span>
+        <span class="metric-number">5</span>
+        <p class="metric-desc">Each backed by a UX principle and a real observed consultant behaviour.</p>
+      </div>
+    </div>
+    <p style="margin-top:20px;font-size:12px;color:var(--mid);font-style:italic;">Note: The client engaged my company for UX/UI services only. Usage analytics were not shared with the design team.</p>
+  </div>
+</div>
+
+<!-- INITIAL OBSERVATIONS -->
+<section id="d-observations" class="section-anchor">
+  <div class="wrap">
+    <div class="chapter"><span class="chapter-num">Observations</span><div class="chapter-line"></div></div>
+    <h2>What I noticed before talking to anyone</h2>
+    <p>Before any interviews, I spent time inside the existing Compliance Platform interface — clicking through every screen as a first-time user. These are the problems that were visible immediately, without needing domain knowledge.</p>
+
+    <div style="margin-top:36px;">
+      <div style="display:flex;gap:8px;margin-bottom:24px;align-items:center;">
+        <button class="cdot active" data-idx="0"></button>
+        <button class="cdot" data-idx="1"></button>
+        <button class="cdot" data-idx="2"></button>
+        <button class="cdot" data-idx="3"></button>
+      </div>
+
+      <div id="ctrack">
+
+        <!-- SLIDE 1: Sidebar -->
+        <div class="cslide active">
+          <span class="obs-num">01 / 04</span>
+          <h3 class="obs-title">The sidebar was taking up space the data needed</h3>
+          <p class="obs-desc">A fixed vertical sidebar sat on the left of every screen. The platform is built around wide tables and long forms — and the sidebar was eating into that space on every single one. It was the first thing I noticed.</p>
+          <div style="margin:1.5rem 0;border-radius:6px;overflow:hidden;border:1px solid #e8e8e8;"><svg viewBox="0 0 840 400" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;font-family:Caveat,cursive;"><defs>
+  <marker id="ah" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <path d="M0,0 L8,3 L0,6 Z" fill="#1a1a1a"/>
+  </marker>
+  <filter id="pencil" x="-3%" y="-3%" width="106%" height="106%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.065" numOctaves="4" result="noise"/>
+    <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.8" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</defs><rect x="10" y="10" width="820" height="380" fill="none" stroke="#1a1a1a" stroke-width="1.5" filter="url(#pencil)"/><rect x="10" y="10" width="820" height="22" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="0" filter="url(#pencil)"/><text x="22" y="26" font-size="9" fill="#fff" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Platform</text><rect x="10" y="34" width="180" height="356" fill="#f5f5f5" stroke="#1a1a1a" stroke-width="1.5" filter="url(#pencil)"/><g opacity=".25"></g><rect x="12" y="36" width="176" height="46" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="0" filter="url(#pencil)"/><text x="26" y="65" font-size="10" fill="#fff" text-anchor="start" font-weight="600" font-family="Caveat,cursive">⊞  Dashboard</text><text x="22" y="98" font-size="9" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">⊛  Client Management</text><text x="22" y="118" font-size="9" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">☰  Task Management</text><rect x="196" y="34" width="624" height="356" fill="#fafafa" stroke="#ccc" stroke-width="0.8" filter="url(#pencil)"/><rect x="196" y="34" width="624" height="22" fill="#e8e8e8" stroke="#ccc" stroke-width="0" filter="url(#pencil)"/><rect x="196" y="58" width="624" height="24" fill="#333" stroke="#333" stroke-width="0" filter="url(#pencil)"/><text x="206" y="75" font-size="9" fill="#fff" text-anchor="start" font-weight="600" font-family="Caveat,cursive">Task Details</text><text x="650" y="75" font-size="9" fill="#ccc" text-anchor="start" font-weight="400" font-family="Caveat,cursive">🔍</text><rect x="200" y="84" width="620" height="30" fill="#fff" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><line x1="200" y1="114" x2="820" y2="114" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><line x1="380" y1="84" x2="380" y2="114" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="480" y1="84" x2="480" y2="114" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="580" y1="84" x2="580" y2="114" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="700" y1="84" x2="700" y2="114" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><text x="208" y="103" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">LMNO Private Limited</text><text x="390" y="103" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">2022-23</text><text x="490" y="103" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Original</text><rect x="580" y="91" width="90" height="16" fill="#e8e8e8" stroke="#ccc" stroke-width="0.6" filter="url(#pencil)"/><text x="584" y="102" font-size="7" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">With Level 1</text><text x="682" y="103" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">03-07-2023</text><text x="770" y="103" font-size="8" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">✎ 👁</text><rect x="200" y="116" width="620" height="30" fill="#fff" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><line x1="200" y1="146" x2="820" y2="146" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><line x1="380" y1="116" x2="380" y2="146" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="480" y1="116" x2="480" y2="146" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="580" y1="116" x2="580" y2="146" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="700" y1="116" x2="700" y2="146" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><text x="208" y="135" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">LMNO Private Limited</text><text x="390" y="135" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">2022-23</text><text x="490" y="135" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Original</text><rect x="580" y="123" width="90" height="16" fill="#e8e8e8" stroke="#ccc" stroke-width="0.6" filter="url(#pencil)"/><text x="584" y="134" font-size="7" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">With Level 1</text><text x="682" y="135" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">03-07-2023</text><text x="770" y="135" font-size="8" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">✎ 👁</text><rect x="200" y="148" width="620" height="30" fill="#fff" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><line x1="200" y1="178" x2="820" y2="178" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><line x1="380" y1="148" x2="380" y2="178" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="480" y1="148" x2="480" y2="178" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="580" y1="148" x2="580" y2="178" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="700" y1="148" x2="700" y2="178" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><text x="208" y="167" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">LMNO Private Limited</text><text x="390" y="167" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">2022-23</text><text x="490" y="167" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Original</text><rect x="580" y="155" width="90" height="16" fill="#e8e8e8" stroke="#ccc" stroke-width="0.6" filter="url(#pencil)"/><text x="584" y="166" font-size="7" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">With Level 1</text><text x="682" y="167" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">03-07-2023</text><text x="770" y="167" font-size="8" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">✎ 👁</text><rect x="200" y="180" width="620" height="30" fill="#fff" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><line x1="200" y1="210" x2="820" y2="210" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><line x1="380" y1="180" x2="380" y2="210" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="480" y1="180" x2="480" y2="210" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="580" y1="180" x2="580" y2="210" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="700" y1="180" x2="700" y2="210" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><text x="208" y="199" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">LMNO Private Limited</text><text x="390" y="199" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">2022-23</text><text x="490" y="199" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Original</text><rect x="580" y="187" width="90" height="16" fill="#e8e8e8" stroke="#ccc" stroke-width="0.6" filter="url(#pencil)"/><text x="584" y="198" font-size="7" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">With Level 1</text><text x="682" y="199" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">03-07-2023</text><text x="770" y="199" font-size="8" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">✎ 👁</text><rect x="200" y="212" width="620" height="30" fill="#fff" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><line x1="200" y1="242" x2="820" y2="242" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><line x1="380" y1="212" x2="380" y2="242" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="480" y1="212" x2="480" y2="242" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="580" y1="212" x2="580" y2="242" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="700" y1="212" x2="700" y2="242" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><text x="208" y="231" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">LMNO Private Limited</text><text x="390" y="231" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">2022-23</text><text x="490" y="231" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Original</text><rect x="580" y="219" width="90" height="16" fill="#e8e8e8" stroke="#ccc" stroke-width="0.6" filter="url(#pencil)"/><text x="584" y="230" font-size="7" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">With Level 1</text><text x="682" y="231" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">03-07-2023</text><text x="770" y="231" font-size="8" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">✎ 👁</text><rect x="200" y="244" width="620" height="30" fill="#fff" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><line x1="200" y1="274" x2="820" y2="274" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><line x1="380" y1="244" x2="380" y2="274" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="480" y1="244" x2="480" y2="274" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="580" y1="244" x2="580" y2="274" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="700" y1="244" x2="700" y2="274" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><text x="208" y="263" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">LMNO Private Limited</text><text x="390" y="263" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">2022-23</text><text x="490" y="263" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Original</text><rect x="580" y="251" width="90" height="16" fill="#e8e8e8" stroke="#ccc" stroke-width="0.6" filter="url(#pencil)"/><text x="584" y="262" font-size="7" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">With Level 1</text><text x="682" y="263" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">03-07-2023</text><text x="770" y="263" font-size="8" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">✎ 👁</text><rect x="200" y="276" width="620" height="30" fill="#fff" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><line x1="200" y1="306" x2="820" y2="306" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><line x1="380" y1="276" x2="380" y2="306" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="480" y1="276" x2="480" y2="306" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="580" y1="276" x2="580" y2="306" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="700" y1="276" x2="700" y2="306" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><text x="208" y="295" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">LMNO Private Limited</text><text x="390" y="295" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">2022-23</text><text x="490" y="295" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Original</text><rect x="580" y="283" width="90" height="16" fill="#e8e8e8" stroke="#ccc" stroke-width="0.6" filter="url(#pencil)"/><text x="584" y="294" font-size="7" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">With Level 1</text><text x="682" y="295" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">03-07-2023</text><text x="770" y="295" font-size="8" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">✎ 👁</text><rect x="200" y="308" width="620" height="30" fill="#fff" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><line x1="200" y1="338" x2="820" y2="338" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><line x1="380" y1="308" x2="380" y2="338" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="480" y1="308" x2="480" y2="338" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="580" y1="308" x2="580" y2="338" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="700" y1="308" x2="700" y2="338" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><text x="208" y="327" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">LMNO Private Limited</text><text x="390" y="327" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">2022-23</text><text x="490" y="327" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Original</text><rect x="580" y="315" width="90" height="16" fill="#e8e8e8" stroke="#ccc" stroke-width="0.6" filter="url(#pencil)"/><text x="584" y="326" font-size="7" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">With Level 1</text><text x="682" y="327" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">03-07-2023</text><text x="770" y="327" font-size="8" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">✎ 👁</text><rect x="200" y="340" width="620" height="30" fill="#fff" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><line x1="200" y1="370" x2="820" y2="370" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><line x1="380" y1="340" x2="380" y2="370" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="480" y1="340" x2="480" y2="370" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="580" y1="340" x2="580" y2="370" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="700" y1="340" x2="700" y2="370" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><text x="208" y="359" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">LMNO Private Limited</text><text x="390" y="359" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">2022-23</text><text x="490" y="359" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Original</text><rect x="580" y="347" width="90" height="16" fill="#e8e8e8" stroke="#ccc" stroke-width="0.6" filter="url(#pencil)"/><text x="584" y="358" font-size="7" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">With Level 1</text><text x="682" y="359" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">03-07-2023</text><text x="770" y="359" font-size="8" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">✎ 👁</text><text x="15" y="190" font-size="20" fill="#1a1a1a" text-anchor="start" font-weight="700" font-family="Caveat,cursive">sidebar</text><text x="15" y="212" font-size="20" fill="#1a1a1a" text-anchor="start" font-weight="700" font-family="Caveat,cursive">steals</text><text x="15" y="234" font-size="20" fill="#1a1a1a" text-anchor="start" font-weight="700" font-family="Caveat,cursive">space</text><line x1="130" y1="220" x2="180" y2="220" stroke="#1a1a1a" stroke-width="2.5" marker-end="url(#ah)" filter="url(#pencil)"/><text x="210" y="150" font-size="18" fill="#1a1a1a" text-anchor="start" font-weight="700" font-family="Caveat,cursive">table squeezed</text><line x1="350" y1="155" x2="350" y2="168" stroke="#1a1a1a" stroke-width="2.5" marker-end="url(#ah)" filter="url(#pencil)"/><text x="565" y="310" font-size="15" fill="#1a1a1a" text-anchor="start" font-weight="700" font-family="Caveat,cursive">status</text><text x="565" y="328" font-size="15" fill="#1a1a1a" text-anchor="start" font-weight="700" font-family="Caveat,cursive">crammed</text><text x="565" y="346" font-size="15" fill="#1a1a1a" text-anchor="start" font-weight="700" font-family="Caveat,cursive">in corner</text><line x1="600" y1="304" x2="600" y2="275" stroke="#1a1a1a" stroke-width="2.5" marker-end="url(#ah)" filter="url(#pencil)"/></svg></div>
+
+          
+        </div>
+
+        <!-- SLIDE 2: Upload -->
+        <div class="cslide">
+          <span class="obs-num">02 / 04</span>
+          <h3 class="obs-title">Uploading a file gave no indication it had worked</h3>
+          <p class="obs-desc">After dropping a file into the upload area, nothing changed on screen. No count, no confirmation, no visible state. I immediately understood why consultants were uploading files multiple times — there was simply no way to know if the first one had gone through.</p>
+          <div style="margin:1.5rem 0;border-radius:6px;overflow:hidden;border:1px solid #e8e8e8;"><svg viewBox="0 0 840 336" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;font-family:Caveat,cursive;"><defs>
+  <marker id="ah" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <path d="M0,0 L8,3 L0,6 Z" fill="#1a1a1a"/>
+  </marker>
+  <filter id="pencil" x="-3%" y="-3%" width="106%" height="106%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.065" numOctaves="4" result="noise"/>
+    <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.8" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</defs><rect x="10" y="10" width="820" height="340" fill="none" stroke="#1a1a1a" stroke-width="1.5" filter="url(#pencil)"/><rect x="10" y="10" width="820" height="22" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="0" filter="url(#pencil)"/><text x="22" y="26" font-size="9" fill="#fff" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Platform</text><rect x="10" y="34" width="46" height="306" fill="#e8e8e8" stroke="#ccc" stroke-width="1" filter="url(#pencil)"/><text x="33" y="70" font-size="13" fill="#777" text-anchor="middle" font-weight="400" font-family="Caveat,cursive">⊞</text><text x="33" y="120" font-size="13" fill="#777" text-anchor="middle" font-weight="400" font-family="Caveat,cursive">☰</text><text x="33" y="170" font-size="13" fill="#777" text-anchor="middle" font-weight="400" font-family="Caveat,cursive">⊛</text><rect x="10" y="138" width="46" height="44" fill="#ccc" stroke="#1a1a1a" stroke-width="1" filter="url(#pencil)"/><text x="33" y="165" font-size="13" fill="#1a1a1a" text-anchor="middle" font-weight="600" font-family="Caveat,cursive">⊛</text><rect x="60" y="32" width="762" height="26" fill="#e8e8e8" stroke="#ccc" stroke-width="0.7" filter="url(#pencil)"/><text x="68" y="49" font-size="9" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Client Details</text><text x="176" y="49" font-size="9" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Permission</text><rect x="256" y="32" width="106" height="26" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="0" filter="url(#pencil)"/><text x="260" y="49" font-size="9" fill="#fff" text-anchor="start" font-weight="600" font-family="Caveat,cursive">Document Upload</text><text x="374" y="49" font-size="9" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Form 3CA</text><text x="446" y="49" font-size="9" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Form 3CD</text><rect x="60" y="60" width="762" height="26" fill="#333" stroke="#333" stroke-width="0" filter="url(#pencil)"/><text x="72" y="77" font-size="9" fill="#fff" text-anchor="start" font-weight="600" font-family="Caveat,cursive">Document Upload</text><line x1="60" y1="126" x2="822" y2="126" stroke="#ccc" stroke-width="0.6" filter="url(#pencil)"/><text x="74" y="112" font-size="9" fill="#3a8fca" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Last Year's Tax Audit Report</text><text x="420" y="112" font-size="8" fill="#ccc" text-anchor="start" font-weight="400" font-family="Caveat,cursive">TAR_Json_AY2021-22_2.json</text><line x1="60" y1="164" x2="822" y2="164" stroke="#ccc" stroke-width="0.6" filter="url(#pencil)"/><text x="74" y="150" font-size="9" fill="#3a8fca" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Financials (Audited)</text><text x="420" y="150" font-size="8" fill="#ccc" text-anchor="start" font-weight="400" font-family="Caveat,cursive">ABCD_India_Financials.xlsx</text><line x1="60" y1="202" x2="822" y2="202" stroke="#ccc" stroke-width="0.6" filter="url(#pencil)"/><text x="74" y="188" font-size="9" fill="#1a1a1a" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Ledgers</text><rect x="714" y="174" width="82" height="22" fill="#ccc" stroke="#333" stroke-width="1" filter="url(#pencil)"/><text x="737" y="189" font-size="9" fill="#1a1a1a" text-anchor="middle" font-weight="400" font-family="Caveat,cursive">Upload</text><line x1="60" y1="240" x2="822" y2="240" stroke="#ccc" stroke-width="0.6" filter="url(#pencil)"/><text x="74" y="226" font-size="9" fill="#1a1a1a" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Trial Balance</text><rect x="714" y="212" width="82" height="22" fill="#ccc" stroke="#333" stroke-width="1" filter="url(#pencil)"/><text x="737" y="227" font-size="9" fill="#1a1a1a" text-anchor="middle" font-weight="400" font-family="Caveat,cursive">Upload</text><line x1="60" y1="278" x2="822" y2="278" stroke="#ccc" stroke-width="0.6" filter="url(#pencil)"/><text x="74" y="264" font-size="9" fill="#1a1a1a" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Fixed Assets Register</text><rect x="714" y="250" width="82" height="22" fill="#ccc" stroke="#333" stroke-width="1" filter="url(#pencil)"/><text x="737" y="265" font-size="9" fill="#1a1a1a" text-anchor="middle" font-weight="400" font-family="Caveat,cursive">Upload</text><line x1="60" y1="316" x2="822" y2="316" stroke="#ccc" stroke-width="0.6" filter="url(#pencil)"/><text x="74" y="302" font-size="9" fill="#1a1a1a" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Annual GST Returns</text><rect x="714" y="288" width="82" height="22" fill="#ccc" stroke="#333" stroke-width="1" filter="url(#pencil)"/><text x="737" y="303" font-size="9" fill="#1a1a1a" text-anchor="middle" font-weight="400" font-family="Caveat,cursive">Upload</text><text x="68" y="160" font-size="20" fill="#1a1a1a" text-anchor="start" font-weight="700" font-family="Caveat,cursive">uploaded.</text><text x="68" y="182" font-size="20" fill="#1a1a1a" text-anchor="start" font-weight="700" font-family="Caveat,cursive">nothing changed.</text><line x1="260" y1="165" x2="420" y2="130" stroke="#1a1a1a" stroke-width="2.5" marker-end="url(#ah)" filter="url(#pencil)"/><text x="480" y="240" font-size="17" fill="#1a1a1a" text-anchor="start" font-weight="700" font-family="Caveat,cursive">uploads again?</text><line x1="480" y1="235" x2="740" y2="216" stroke="#1a1a1a" stroke-width="2.5" marker-end="url(#ah)" filter="url(#pencil)"/><text x="68" y="318" font-size="14" fill="#1a1a1a" text-anchor="start" font-weight="700" font-family="Caveat,cursive">no count. no state. no confirmation.</text></svg></div>
+
+          
+        </div>
+
+        <!-- SLIDE 3: Table -->
+        <div class="cslide">
+          <span class="obs-num">03 / 04</span>
+          <h3 class="obs-title">The tables were hard to read across</h3>
+          <p class="obs-desc">Every row in the compliance tables was the same white background with no visual separation. Tracking a single row of data across a wide screen required conscious effort each time. On a task consultants repeat dozens of times a day, that adds up quickly.</p>
+          <div style="margin:1.5rem 0;border-radius:6px;overflow:hidden;border:1px solid #e8e8e8;"><svg viewBox="0 0 1150 542" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;font-family:Caveat,cursive;"><defs>
+  <marker id="ah" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <path d="M0,0 L8,3 L0,6 Z" fill="#1a1a1a"/>
+  </marker>
+  <filter id="pencil" x="-3%" y="-3%" width="106%" height="106%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.065" numOctaves="4" result="noise"/>
+    <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.8" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</defs><rect x="10" y="10" width="1050" height="480" fill="none" stroke="#1a1a1a" stroke-width="1.5" filter="url(#pencil)"/><rect x="10" y="10" width="1050" height="22" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="0" filter="url(#pencil)"/><text x="22" y="26" font-size="9" fill="#fff" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Platform</text><text x="850" y="26" font-size="8" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">USER14</text><rect x="10" y="34" width="46" height="340" fill="#e8e8e8" stroke="#ccc" stroke-width="1" filter="url(#pencil)"/><text x="33" y="70" font-size="13" fill="#333" text-anchor="middle" font-weight="400" font-family="Caveat,cursive">⊞</text><text x="33" y="122" font-size="13" fill="#333" text-anchor="middle" font-weight="400" font-family="Caveat,cursive">☰</text><text x="33" y="174" font-size="13" fill="#333" text-anchor="middle" font-weight="400" font-family="Caveat,cursive">⊛</text><rect x="10" y="138" width="46" height="46" fill="#ccc" stroke="#1a1a1a" stroke-width="1" filter="url(#pencil)"/><text x="33" y="168" font-size="13" fill="#1a1a1a" text-anchor="middle" font-weight="600" font-family="Caveat,cursive">⊛</text><rect x="60" y="32" width="1000" height="28" fill="#e8e8e8" stroke="#ccc" stroke-width="0.7" filter="url(#pencil)"/><text x="68" y="50" font-size="9" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Task Management /</text><text x="172" y="50" font-size="9" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">SCRIPTBEES TESTING</text><rect x="740" y="36" width="90" height="18" fill="#ccc" stroke="#333" stroke-width="1" filter="url(#pencil)"/><text x="762" y="49" font-size="8" fill="#1a1a1a" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Reports</text><rect x="836" y="36" width="110" height="18" fill="#333" stroke="#333" stroke-width="0" filter="url(#pencil)"/><text x="854" y="49" font-size="8" fill="#fff" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Approve/Reject</text><rect x="60" y="62" width="1000" height="26" fill="#f8f8f6" stroke="#ccc" stroke-width="0.7" filter="url(#pencil)"/><text x="68" y="79" font-size="9" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Client Details</text><text x="248" y="79" font-size="9" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Permission</text><text x="428" y="79" font-size="9" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Document Upload</text><text x="608" y="79" font-size="9" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Form 3CA</text><rect x="784" y="62" width="72" height="26" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="0" filter="url(#pencil)"/><text x="788" y="79" font-size="9" fill="#fff" text-anchor="start" font-weight="600" font-family="Caveat,cursive">Form 3CD</text><rect x="60" y="90" width="1000" height="26" fill="#333" stroke="#333" stroke-width="0" filter="url(#pencil)"/><text x="72" y="108" font-size="10" fill="#fff" text-anchor="start" font-weight="600" font-family="Caveat,cursive">Clauses</text><text x="930" y="108" font-size="9" fill="#ccc" text-anchor="start" font-weight="400" font-family="Caveat,cursive">⊞  🔍 Search</text><rect x="60" y="118" width="1000" height="28" fill="#e8e8e8" stroke="#ccc" stroke-width="0.7" filter="url(#pencil)"/><text x="68" y="136" font-size="8" fill="#333" text-anchor="start" font-weight="600" font-family="Caveat,cursive">No</text><text x="98" y="136" font-size="8" fill="#333" text-anchor="start" font-weight="600" font-family="Caveat,cursive">Clause Name</text><text x="288" y="136" font-size="8" fill="#333" text-anchor="start" font-weight="600" font-family="Caveat,cursive">Assessment Year</text><text x="398" y="136" font-size="8" fill="#333" text-anchor="start" font-weight="600" font-family="Caveat,cursive">Type</text><text x="478" y="136" font-size="8" fill="#333" text-anchor="start" font-weight="600" font-family="Caveat,cursive">Status</text><text x="578" y="136" font-size="8" fill="#333" text-anchor="start" font-weight="600" font-family="Caveat,cursive">Modified Date</text><text x="688" y="136" font-size="8" fill="#333" text-anchor="start" font-weight="600" font-family="Caveat,cursive">Assigned To</text><text x="808" y="136" font-size="8" fill="#333" text-anchor="start" font-weight="600" font-family="Caveat,cursive">Action</text><line x1="94" y1="118" x2="94" y2="146" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><line x1="284" y1="118" x2="284" y2="146" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><line x1="394" y1="118" x2="394" y2="146" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><line x1="474" y1="118" x2="474" y2="146" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><line x1="574" y1="118" x2="574" y2="146" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><line x1="684" y1="118" x2="684" y2="146" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><line x1="804" y1="118" x2="804" y2="146" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><rect x="60" y="146" width="1000" height="28" fill="#fff" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><line x1="94" y1="146" x2="94" y2="174" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="284" y1="146" x2="284" y2="174" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="394" y1="146" x2="394" y2="174" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="474" y1="146" x2="474" y2="174" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="574" y1="146" x2="574" y2="174" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="684" y1="146" x2="684" y2="174" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="804" y1="146" x2="804" y2="174" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><text x="68" y="164" font-size="8" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">1</text><text x="98" y="164" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Name</text><text x="288" y="164" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">2022-23</text><text x="398" y="164" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Original</text><rect x="476" y="152" width="92" height="16" fill="#e8e8e8" stroke="#ccc" stroke-width="0.6" filter="url(#pencil)"/><text x="479" y="164" font-size="7" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">In Progress</text><text x="578" y="164" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">01-07-2023</text><text x="688" y="164" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Jay Bhatt</text><text x="808" y="164" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">✎ 👁</text><rect x="60" y="174" width="1000" height="28" fill="#fff" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><line x1="94" y1="174" x2="94" y2="202" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="284" y1="174" x2="284" y2="202" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="394" y1="174" x2="394" y2="202" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="474" y1="174" x2="474" y2="202" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="574" y1="174" x2="574" y2="202" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="684" y1="174" x2="684" y2="202" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="804" y1="174" x2="804" y2="202" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><text x="68" y="192" font-size="8" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">2</text><text x="98" y="192" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Address</text><text x="288" y="192" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">2022-23</text><text x="398" y="192" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Revised</text><rect x="476" y="180" width="92" height="16" fill="#e8e8e8" stroke="#ccc" stroke-width="0.6" filter="url(#pencil)"/><text x="479" y="192" font-size="7" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">In Progress</text><text x="578" y="192" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">01-07-2023</text><text x="688" y="192" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Kriti Shah</text><text x="808" y="192" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">✎ 👁</text><rect x="60" y="202" width="1000" height="28" fill="#fff" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><line x1="94" y1="202" x2="94" y2="230" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="284" y1="202" x2="284" y2="230" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="394" y1="202" x2="394" y2="230" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="474" y1="202" x2="474" y2="230" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="574" y1="202" x2="574" y2="230" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="684" y1="202" x2="684" y2="230" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="804" y1="202" x2="804" y2="230" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><text x="68" y="220" font-size="8" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">3</text><text x="98" y="220" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">PAN</text><text x="288" y="220" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">2022-23</text><text x="398" y="220" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Original</text><rect x="476" y="208" width="92" height="16" fill="#e8e8e8" stroke="#ccc" stroke-width="0.6" filter="url(#pencil)"/><text x="479" y="220" font-size="7" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">In Progress</text><text x="578" y="220" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">03-07-2023</text><text x="688" y="220" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Jay Bhatt</text><text x="808" y="220" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">✎ 👁</text><rect x="60" y="230" width="1000" height="28" fill="#fff" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><line x1="94" y1="230" x2="94" y2="258" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="284" y1="230" x2="284" y2="258" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="394" y1="230" x2="394" y2="258" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="474" y1="230" x2="474" y2="258" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="574" y1="230" x2="574" y2="258" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="684" y1="230" x2="684" y2="258" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="804" y1="230" x2="804" y2="258" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><text x="68" y="248" font-size="8" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">4</text><text x="98" y="248" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Indirect Tax Reg.</text><text x="288" y="248" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">2022-23</text><text x="398" y="248" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Original</text><rect x="476" y="236" width="92" height="16" fill="#e8e8e8" stroke="#ccc" stroke-width="0.6" filter="url(#pencil)"/><text x="479" y="248" font-size="7" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">With Level 1</text><text x="578" y="248" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">27-06-2023</text><text x="688" y="248" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Manoj Patel</text><text x="808" y="248" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">✎ 👁</text><rect x="60" y="258" width="1000" height="28" fill="#fff" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><line x1="94" y1="258" x2="94" y2="286" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="284" y1="258" x2="284" y2="286" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="394" y1="258" x2="394" y2="286" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="474" y1="258" x2="474" y2="286" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="574" y1="258" x2="574" y2="286" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="684" y1="258" x2="684" y2="286" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="804" y1="258" x2="804" y2="286" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><text x="68" y="276" font-size="8" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">5</text><text x="98" y="276" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Status / Type</text><text x="288" y="276" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">2022-23</text><text x="398" y="276" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Original</text><rect x="476" y="264" width="92" height="16" fill="#e8e8e8" stroke="#ccc" stroke-width="0.6" filter="url(#pencil)"/><text x="479" y="276" font-size="7" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Not Started</text><text x="578" y="276" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">01-07-2023</text><text x="688" y="276" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">—</text><text x="808" y="276" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">✎ 👁</text><rect x="60" y="286" width="1000" height="28" fill="#fff" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><line x1="94" y1="286" x2="94" y2="314" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="284" y1="286" x2="284" y2="314" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="394" y1="286" x2="394" y2="314" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="474" y1="286" x2="474" y2="314" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="574" y1="286" x2="574" y2="314" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="684" y1="286" x2="684" y2="314" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="804" y1="286" x2="804" y2="314" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><text x="68" y="304" font-size="8" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">6</text><text x="98" y="304" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Previous Year</text><text x="288" y="304" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">2022-23</text><text x="398" y="304" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Revised</text><rect x="476" y="292" width="92" height="16" fill="#e8e8e8" stroke="#ccc" stroke-width="0.6" filter="url(#pencil)"/><text x="479" y="304" font-size="7" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">In Progress</text><text x="578" y="304" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">01-07-2023</text><text x="688" y="304" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Jay Bhatt</text><text x="808" y="304" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">✎ 👁</text><rect x="60" y="314" width="1000" height="28" fill="#fff" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><line x1="94" y1="314" x2="94" y2="342" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="284" y1="314" x2="284" y2="342" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="394" y1="314" x2="394" y2="342" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="474" y1="314" x2="474" y2="342" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="574" y1="314" x2="574" y2="342" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="684" y1="314" x2="684" y2="342" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="804" y1="314" x2="804" y2="342" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><text x="68" y="332" font-size="8" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">7</text><text x="98" y="332" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Assessment Year</text><text x="288" y="332" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">2022-23</text><text x="398" y="332" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Original</text><rect x="476" y="320" width="92" height="16" fill="#e8e8e8" stroke="#ccc" stroke-width="0.6" filter="url(#pencil)"/><text x="479" y="332" font-size="7" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">With Level 1</text><text x="578" y="332" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">03-07-2023</text><text x="688" y="332" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Kriti Shah</text><text x="808" y="332" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">✎ 👁</text><rect x="60" y="342" width="1000" height="28" fill="#fff" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><line x1="94" y1="342" x2="94" y2="370" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="284" y1="342" x2="284" y2="370" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="394" y1="342" x2="394" y2="370" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="474" y1="342" x2="474" y2="370" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="574" y1="342" x2="574" y2="370" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="684" y1="342" x2="684" y2="370" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="804" y1="342" x2="804" y2="370" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><text x="68" y="360" font-size="8" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">8</text><text x="98" y="360" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Depreciation</text><text x="288" y="360" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">2022-23</text><text x="398" y="360" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Original</text><rect x="476" y="348" width="92" height="16" fill="#e8e8e8" stroke="#ccc" stroke-width="0.6" filter="url(#pencil)"/><text x="479" y="360" font-size="7" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Not Started</text><text x="578" y="360" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">27-06-2023</text><text x="688" y="360" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">—</text><text x="808" y="360" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">✎ 👁</text><rect x="60" y="370" width="1000" height="28" fill="#fff" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><line x1="94" y1="370" x2="94" y2="398" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="284" y1="370" x2="284" y2="398" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="394" y1="370" x2="394" y2="398" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="474" y1="370" x2="474" y2="398" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="574" y1="370" x2="574" y2="398" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="684" y1="370" x2="684" y2="398" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="804" y1="370" x2="804" y2="398" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><text x="68" y="388" font-size="8" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">9</text><text x="98" y="388" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Amts allowable u/s 32</text><text x="288" y="388" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">2022-23</text><text x="398" y="388" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Original</text><rect x="476" y="376" width="92" height="16" fill="#e8e8e8" stroke="#ccc" stroke-width="0.6" filter="url(#pencil)"/><text x="479" y="388" font-size="7" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">In Progress</text><text x="578" y="388" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">01-07-2023</text><text x="688" y="388" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Manoj Patel</text><text x="808" y="388" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">✎ 👁</text><rect x="60" y="398" width="1000" height="28" fill="#fff" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><line x1="94" y1="398" x2="94" y2="426" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="284" y1="398" x2="284" y2="426" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="394" y1="398" x2="394" y2="426" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="474" y1="398" x2="474" y2="426" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="574" y1="398" x2="574" y2="426" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="684" y1="398" x2="684" y2="426" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="804" y1="398" x2="804" y2="426" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><text x="68" y="416" font-size="8" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">10</text><text x="98" y="416" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Employee bonus u/s 36</text><text x="288" y="416" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">2022-23</text><text x="398" y="416" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Original</text><rect x="476" y="404" width="92" height="16" fill="#e8e8e8" stroke="#ccc" stroke-width="0.6" filter="url(#pencil)"/><text x="479" y="416" font-size="7" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">In Progress</text><text x="578" y="416" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">01-07-2023</text><text x="688" y="416" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Jay Bhatt</text><text x="808" y="416" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">✎ 👁</text><rect x="60" y="426" width="1000" height="28" fill="#fff" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><line x1="94" y1="426" x2="94" y2="454" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="284" y1="426" x2="284" y2="454" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="394" y1="426" x2="394" y2="454" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="474" y1="426" x2="474" y2="454" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="574" y1="426" x2="574" y2="454" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="684" y1="426" x2="684" y2="454" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="804" y1="426" x2="804" y2="454" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><text x="68" y="444" font-size="8" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">11</text><text x="98" y="444" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Disallowance u/s 36</text><text x="288" y="444" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">2022-23</text><text x="398" y="444" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Revised</text><rect x="476" y="432" width="92" height="16" fill="#e8e8e8" stroke="#ccc" stroke-width="0.6" filter="url(#pencil)"/><text x="479" y="444" font-size="7" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">With Level 1</text><text x="578" y="444" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">03-07-2023</text><text x="688" y="444" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Kriti Shah</text><text x="808" y="444" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">✎ 👁</text><rect x="60" y="454" width="1000" height="28" fill="#fff" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><line x1="94" y1="454" x2="94" y2="482" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="284" y1="454" x2="284" y2="482" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="394" y1="454" x2="394" y2="482" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="474" y1="454" x2="474" y2="482" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="574" y1="454" x2="574" y2="482" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="684" y1="454" x2="684" y2="482" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><line x1="804" y1="454" x2="804" y2="482" stroke="#ccc" stroke-width="0.4" filter="url(#pencil)"/><text x="68" y="472" font-size="8" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">12</text><text x="98" y="472" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Chapter VIA deductions</text><text x="288" y="472" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">2022-23</text><text x="398" y="472" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Original</text><rect x="476" y="460" width="92" height="16" fill="#e8e8e8" stroke="#ccc" stroke-width="0.6" filter="url(#pencil)"/><text x="479" y="472" font-size="7" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Not Started</text><text x="578" y="472" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">27-06-2023</text><text x="688" y="472" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">—</text><text x="808" y="472" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">✎ 👁</text><text x="334" y="184" font-size="17" fill="#1a1a1a" text-anchor="start" font-weight="700" font-family="Caveat,cursive">same badge,</text><text x="334" y="202" font-size="17" fill="#1a1a1a" text-anchor="start" font-weight="700" font-family="Caveat,cursive">same weight,</text><text x="334" y="220" font-size="17" fill="#1a1a1a" text-anchor="start" font-weight="700" font-family="Caveat,cursive">every row</text><line x1="434" y1="204" x2="484" y2="244" stroke="#1a1a1a" stroke-width="2.5" marker-end="url(#ah)" filter="url(#pencil)"/><line x1="64" y1="356" x2="1000" y2="356" stroke="#1a1a1a" stroke-width="1.5" filter="url(#pencil)"/><line x1="64" y1="350" x2="64" y2="362" stroke="#1a1a1a" stroke-width="1.5" filter="url(#pencil)"/><line x1="1000" y1="350" x2="1000" y2="362" stroke="#1a1a1a" stroke-width="1.5" filter="url(#pencil)"/><text x="320" y="346" font-size="14" fill="#1a1a1a" text-anchor="middle" font-weight="700" font-family="Caveat,cursive">eye travels full width to read one row</text><text x="68" y="498" font-size="17" fill="#1a1a1a" text-anchor="start" font-weight="700" font-family="Caveat,cursive">no alternating rows.</text><text x="68" y="516" font-size="15" fill="#1a1a1a" text-anchor="start" font-weight="700" font-family="Caveat,cursive">no dividers. 12 rows look like one block.</text><line x1="200" y1="490" x2="200" y2="476" stroke="#1a1a1a" stroke-width="2.2" marker-end="url(#ah)" filter="url(#pencil)"/><text x="808" y="154" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">✎ 👁</text><text x="894" y="186" font-size="14" fill="#1a1a1a" text-anchor="start" font-weight="700" font-family="Caveat,cursive">action icons</text><text x="894" y="204" font-size="14" fill="#1a1a1a" text-anchor="start" font-weight="700" font-family="Caveat,cursive">too small to</text><text x="894" y="222" font-size="14" fill="#1a1a1a" text-anchor="start" font-weight="700" font-family="Caveat,cursive">click confidently</text><line x1="892" y1="194" x2="836" y2="156" stroke="#1a1a1a" stroke-width="2.2" marker-end="url(#ah)" filter="url(#pencil)"/></svg></div>
+
+          
+        </div>
+
+        <!-- SLIDE 4: Colour -->
+        <div class="cslide">
+          <span class="obs-num">04 / 04</span>
+          <h3 class="obs-title">Colour was doing one job, not the important one</h3>
+          <p class="obs-desc">Green was used to show which tab was active — and that was it. A warning notice sitting inside a bright green banner, on an already green screen, didn't read as a warning at all. When everything is the same colour, nothing stands out.</p>
+          <div style="margin:1.5rem 0;border-radius:6px;overflow:hidden;border:1px solid #e8e8e8;"><svg viewBox="0 0 1060 468" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;font-family:Caveat,cursive;"><defs>
+  <marker id="ah" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <path d="M0,0 L8,3 L0,6 Z" fill="#1a1a1a"/>
+  </marker>
+  <filter id="pencil" x="-3%" y="-3%" width="106%" height="106%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.065" numOctaves="4" result="noise"/>
+    <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.8" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</defs><rect x="10" y="10" width="860" height="440" fill="none" stroke="#1a1a1a" stroke-width="1.5" filter="url(#pencil)"/><rect x="10" y="10" width="860" height="24" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="0" filter="url(#pencil)"/><text x="22" y="26" font-size="9" fill="#fff" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Enterprise Platform</text><text x="680" y="26" font-size="8" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">USER14</text><text x="838" y="26" font-size="9" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">→</text><rect x="10" y="36" width="182" height="414" fill="#f5f5f0" stroke="#ccc" stroke-width="1" filter="url(#pencil)"/><rect x="12" y="38" width="178" height="48" fill="#7ab648" stroke="#7ab648" stroke-width="0" filter="url(#pencil)"/><text x="28" y="68" font-size="10" fill="#fff" text-anchor="start" font-weight="600" font-family="Caveat,cursive">⊞  Dashboard</text><text x="24" y="104" font-size="9" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">⊛  Client Management</text><text x="24" y="124" font-size="9" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">☰  Task Management</text><rect x="196" y="36" width="668" height="414" fill="#f8f8f5" stroke="#ccc" stroke-width="0.7" filter="url(#pencil)"/><rect x="196" y="36" width="668" height="26" fill="#e8e8e8" stroke="#ccc" stroke-width="0" filter="url(#pencil)"/><rect x="196" y="36" width="112" height="26" fill="#7ab648" stroke="#7ab648" stroke-width="0" filter="url(#pencil)"/><text x="208" y="53" font-size="9" fill="#fff" text-anchor="start" font-weight="600" font-family="Caveat,cursive">Dashboard</text><text x="322" y="53" font-size="9" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Client Mgmt</text><text x="430" y="53" font-size="9" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Task Mgmt</text><rect x="196" y="64" width="668" height="34" fill="#7ab648" stroke="#7ab648" stroke-width="0" filter="url(#pencil)"/><text x="208" y="79" font-size="12" fill="#fff" text-anchor="start" font-weight="400" font-family="Caveat,cursive">⚠</text><text x="226" y="79" font-size="10" fill="#fff" text-anchor="start" font-weight="600" font-family="Caveat,cursive">Note: The file uploaded cannot be deleted.</text><text x="226" y="93" font-size="9" fill="#fff" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Please make sure the correct file is uploaded.</text><rect x="816" y="70" width="40" height="20" fill="#5a8830" stroke="none" stroke-width="0" filter="url(#pencil)"/><text x="836" y="83" font-size="9" fill="#fff" text-anchor="middle" font-weight="400" font-family="Caveat,cursive">Save</text><rect x="200" y="102" width="248" height="210" fill="#fff" stroke="#ccc" stroke-width="0.7" filter="url(#pencil)"/><text x="210" y="120" font-size="9" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Task Status</text><circle cx="324" cy="192" r="68" fill="#e8e8e8" stroke="#333" stroke-width="1" filter="url(#pencil)"/><path d="M 324,192 L 324,124 A 68,68 0 1 1 256,210 Z" fill="#333" opacity=".25" filter="url(#pencil)"/><rect x="212" y="280" width="12" height="10" fill="#333" stroke="#333" stroke-width="0" filter="url(#pencil)"/><text x="228" y="289" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">75% With Level 1</text><rect x="212" y="296" width="12" height="10" fill="#e8e8e8" stroke="#ccc" stroke-width="0.8" filter="url(#pencil)"/><text x="228" y="305" font-size="8" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">25% Not Started</text><rect x="452" y="100" width="408" height="316" fill="#fff" stroke="#ccc" stroke-width="0.7" filter="url(#pencil)"/><rect x="452" y="100" width="408" height="26" fill="#7ab648" stroke="#7ab648" stroke-width="0" filter="url(#pencil)"/><text x="464" y="117" font-size="9" fill="#fff" text-anchor="start" font-weight="600" font-family="Caveat,cursive">Task Details</text><text x="770" y="117" font-size="8" fill="#ccc" text-anchor="start" font-weight="400" font-family="Caveat,cursive">🔍 Search</text><rect x="452" y="128" width="408" height="20" fill="#e8e8e8" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><text x="464" y="142" font-size="8" fill="#333" text-anchor="start" font-weight="600" font-family="Caveat,cursive">Client Name</text><text x="596" y="142" font-size="8" fill="#333" text-anchor="start" font-weight="600" font-family="Caveat,cursive">Asmt Year</text><text x="672" y="142" font-size="8" fill="#333" text-anchor="start" font-weight="600" font-family="Caveat,cursive">Task Type</text><text x="748" y="142" font-size="8" fill="#333" text-anchor="start" font-weight="600" font-family="Caveat,cursive">Status</text><line x1="452" y1="186" x2="860" y2="186" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><text x="464" y="172" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">LMNO Private Limited</text><text x="596" y="172" font-size="8" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">2022-2023</text><text x="672" y="172" font-size="8" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Revised</text><rect x="748" y="160" width="80" height="16" fill="#7ab648" stroke="none" stroke-width="0" filter="url(#pencil)"/><text x="752" y="172" font-size="7" fill="#fff" text-anchor="start" font-weight="400" font-family="Caveat,cursive">With Level 1</text><line x1="452" y1="224" x2="860" y2="224" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><text x="464" y="210" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">test</text><text x="596" y="210" font-size="8" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">2022-2023</text><text x="672" y="210" font-size="8" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Original</text><rect x="748" y="198" width="80" height="16" fill="#7ab648" stroke="none" stroke-width="0" filter="url(#pencil)"/><text x="752" y="210" font-size="7" fill="#fff" text-anchor="start" font-weight="400" font-family="Caveat,cursive">With Level 1</text><line x1="452" y1="262" x2="860" y2="262" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><text x="464" y="248" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">SCRIPTBEES TESTING</text><text x="596" y="248" font-size="8" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">2022-2023</text><text x="672" y="248" font-size="8" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Original</text><rect x="748" y="236" width="80" height="16" fill="#e8e8e8" stroke="none" stroke-width="0" filter="url(#pencil)"/><text x="752" y="248" font-size="7" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Not Started</text><line x1="452" y1="300" x2="860" y2="300" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><text x="464" y="286" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">LMNO Private Limited</text><text x="596" y="286" font-size="8" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">2022-2023</text><text x="672" y="286" font-size="8" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Original</text><rect x="748" y="274" width="80" height="16" fill="#7ab648" stroke="none" stroke-width="0" filter="url(#pencil)"/><text x="752" y="286" font-size="7" fill="#fff" text-anchor="start" font-weight="400" font-family="Caveat,cursive">With Level 1</text><line x1="452" y1="338" x2="860" y2="338" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><text x="464" y="324" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">EMI India Pvt Ltd</text><text x="596" y="324" font-size="8" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">2022-2023</text><text x="672" y="324" font-size="8" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Revised</text><rect x="748" y="312" width="80" height="16" fill="#e8e8e8" stroke="none" stroke-width="0" filter="url(#pencil)"/><text x="752" y="324" font-size="7" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">In Progress</text><line x1="452" y1="376" x2="860" y2="376" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><text x="464" y="362" font-size="8" fill="#333" text-anchor="start" font-weight="400" font-family="Caveat,cursive">ABC Corp</text><text x="596" y="362" font-size="8" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">2022-2023</text><text x="672" y="362" font-size="8" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Original</text><rect x="748" y="350" width="80" height="16" fill="#e8e8e8" stroke="none" stroke-width="0" filter="url(#pencil)"/><text x="752" y="362" font-size="7" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Not Started</text><text x="464" y="388" font-size="9" fill="#777" text-anchor="start" font-weight="400" font-family="Caveat,cursive">Prev  1  Next</text><text x="196" y="32" font-size="13" fill="#1a1a1a" text-anchor="start" font-weight="700" font-family="Caveat,cursive">active tab</text><line x1="250" y1="28" x2="250" y2="36" stroke="#1a1a1a" stroke-width="2.2" marker-end="url(#ah)" filter="url(#pencil)"/><text x="876" y="64" font-size="15" fill="#1a1a1a" text-anchor="start" font-weight="700" font-family="Caveat,cursive">Note —</text><text x="876" y="82" font-size="15" fill="#1a1a1a" text-anchor="start" font-weight="700" font-family="Caveat,cursive">same green</text><text x="876" y="100" font-size="15" fill="#1a1a1a" text-anchor="start" font-weight="700" font-family="Caveat,cursive">as the tab.</text><text x="876" y="118" font-size="15" fill="#1a1a1a" text-anchor="start" font-weight="700" font-family="Caveat,cursive">reads like</text><text x="876" y="136" font-size="15" fill="#1a1a1a" text-anchor="start" font-weight="700" font-family="Caveat,cursive">a header,</text><text x="876" y="154" font-size="15" fill="#1a1a1a" text-anchor="start" font-weight="700" font-family="Caveat,cursive">not a</text><text x="876" y="172" font-size="15" fill="#1a1a1a" text-anchor="start" font-weight="700" font-family="Caveat,cursive">warning.</text><line x1="874" y1="88" x2="866" y2="82" stroke="#1a1a1a" stroke-width="2.5" marker-end="url(#ah)" filter="url(#pencil)"/><text x="876" y="220" font-size="14" fill="#1a1a1a" text-anchor="start" font-weight="700" font-family="Caveat,cursive">table header</text><text x="876" y="238" font-size="14" fill="#1a1a1a" text-anchor="start" font-weight="700" font-family="Caveat,cursive">— green again</text><line x1="874" y1="226" x2="862" y2="112" stroke="#1a1a1a" stroke-width="2.2" marker-end="url(#ah)" filter="url(#pencil)"/><text x="876" y="290" font-size="14" fill="#1a1a1a" text-anchor="start" font-weight="700" font-family="Caveat,cursive">status badge</text><text x="876" y="308" font-size="14" fill="#1a1a1a" text-anchor="start" font-weight="700" font-family="Caveat,cursive">— also green</text><line x1="874" y1="296" x2="832" y2="164" stroke="#1a1a1a" stroke-width="2.2" marker-end="url(#ah)" filter="url(#pencil)"/><text x="14" y="390" font-size="13" fill="#1a1a1a" text-anchor="start" font-weight="700" font-family="Caveat,cursive">sidebar active</text><text x="14" y="408" font-size="13" fill="#1a1a1a" text-anchor="start" font-weight="700" font-family="Caveat,cursive">= green</text><line x1="80" y1="382" x2="80" y2="86" stroke="#1a1a1a" stroke-width="2.2" marker-end="url(#ah)" filter="url(#pencil)"/><rect x="200" y="392" width="460" height="52" fill="#fff" stroke="#ccc" stroke-width="0.5" filter="url(#pencil)"/><text x="210" y="412" font-size="16" fill="#1a1a1a" text-anchor="start" font-weight="700" font-family="Caveat,cursive">5 things. all the same green.</text><text x="210" y="432" font-size="14" fill="#1a1a1a" text-anchor="start" font-weight="700" font-family="Caveat,cursive">colour is doing one job — and the</text><text x="210" y="448" font-size="14" fill="#333" text-anchor="start" font-weight="700" font-family="Caveat,cursive">wrong things look important because of it.</text></svg></div>
+
+          
+        </div>
+
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:20px;">
+        <button class="carousel-btn" id="cprev" onclick="moveCar(-1)">← Previous</button>
+        <span style="font-size:13px;color:var(--mid);font-family:'DM Sans',sans-serif;" id="ccounter">1 of 4</span>
+        <button class="carousel-btn" id="cnext" onclick="moveCar(1)">Next →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+.cdot{width:8px;height:8px;border-radius:50%;background:#D0CEC8;border:none;cursor:pointer;padding:0;transition:all 0.25s;flex-shrink:0;}
+.cdot.active{background:var(--ink);width:24px;border-radius:4px;}
+.cslide{display:none;}
+.cslide.active{display:block;}
+.obs-num{font-size:10px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--mid);display:block;margin-bottom:8px;}
+.obs-title{font-family:"DM Sans",sans-serif;font-size:1.1rem;font-weight:700;color:var(--ink);margin-bottom:10px;}
+.obs-desc{font-size:15px;color:#555;line-height:1.75;margin-bottom:20px;}
+.obs-img{width:100%;border-radius:10px;display:block;border:0.5px solid var(--rule);}
+.carousel-btn{font-family:"DM Sans",sans-serif;font-size:13px;font-weight:500;color:var(--ink);background:none;border:1px solid var(--rule);padding:8px 20px;border-radius:6px;cursor:pointer;transition:background 0.15s;}
+.carousel-btn:hover{background:var(--orange-light);}
+.carousel-btn:disabled{opacity:0.3;cursor:default;}
+</style>
+
+<script>
+(function(){
+  var cur=0,tot=4;
+  function go(i){
+    document.querySelectorAll('.cslide').forEach(function(s,j){s.classList.toggle('active',j===i);});
+    document.querySelectorAll('.cdot').forEach(function(d,j){d.classList.toggle('active',j===i);});
+    document.getElementById('ccounter').textContent=(i+1)+' of '+tot;
+    document.getElementById('cprev').disabled=i===0;
+    document.getElementById('cnext').disabled=i===tot-1;
+    cur=i;
+  }
+  window.moveCar=function(d){go(Math.min(Math.max(cur+d,0),tot-1));};
+  document.querySelectorAll('.cdot').forEach(function(d){
+    d.addEventListener('click',function(){go(parseInt(d.dataset.idx));});
+  });
+  go(0);
+})();
+</script>
+
+<!-- USER RESEARCH -->
+<section id="d-research" class="section-anchor" style="background:#F7F7F7;">
+  <div class="wrap">
+    <div class="chapter"><span class="chapter-num">User Research</span><div class="chapter-line"></div></div>
+    <h2>Talking to the people who actually used it</h2>
+    <p>I spoke directly with three consultants who used Compliance Platform every day. I asked them to walk me through their actual tasks, not just describe them. I found a huge mismatch between how they actually work and how the system was designed to work.</p>
+    <div class="pullquote"><p>&ldquo;The tool worked &mdash; but it wasn&rsquo;t working for the consultants using it. There&rsquo;s a difference, and that difference was the entire project.&rdquo;</p></div>
+    <p>As someone with no background in financial compliance, I could not assume I understood the workflow from the brief alone. The consultants were my primary source of truth. Five clear problems emerged from those conversations.</p>
+
+    <!-- WORKFLOW MISMATCH DEEP-DIVE -->
+    <div style="margin-top:48px;">
+      <h3 style="font-size:1.3rem;font-weight:700;margin-bottom:16px;">The Workflow Order Mismatch</h3>
+      <p style="margin-bottom:24px;">The most revealing finding was how the system&rsquo;s task flow contradicted the consultants&rsquo; real-world mental model. Here&rsquo;s exactly what that difference looked like &mdash; and why it mattered.</p>
+
+      
+
+      <!-- VISUAL FLOW DIAGRAM (replaces text-heavy comparison) -->
+      <style>
+        .flow-wrap { background:#fff; border:1px solid var(--rule); border-radius:10px; padding:28px 24px 20px; margin:24px 0 8px; }
+        .flow-diagram { width:100%; max-width:760px; display:block; margin:0 auto; height:auto; font-family:"DM Sans",sans-serif; }
+        .flow-caption { text-align:center; color:#767676; font-size:13px; margin-top:8px; }
+        .flow-key { display:flex; gap:24px; justify-content:center; margin-top:20px; flex-wrap:wrap; font-size:12px; color:var(--mid); }
+        .flow-key span { display:inline-flex; align-items:center; gap:6px; }
+        .flow-key i { display:inline-block; width:12px; height:12px; border-radius:3px; }
+      </style>
+
+      <div class="flow-wrap">
+      <svg class="flow-diagram" viewBox="0 0 760 320" xmlns="http://www.w3.org/2000/svg" role="img"
+           aria-label="User flow diagram comparing old and new workflow order. Old: Client Details, Permission, Document Upload, Form 3CA, Form 3CD. New: Document Upload, Form 3CD, Form 3CA, Client Details, Permission. Document Upload moves from step 3 to step 1.">
+
+        <defs>
+          <marker id="arrow-mid" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#B8B6B0"/>
+          </marker>
+          <marker id="arrow-ink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#1C1C1A"/>
+          </marker>
+        </defs>
+
+        <!-- OLD ROW LABEL -->
+        <text x="0" y="14" font-size="11" font-weight="700" letter-spacing="0.08em" fill="#6B6B65">OLD &#8212; AS BUILT</text>
+        <text x="125" y="14" font-size="11" fill="#888">follows tax-document hierarchy, not how consultants work</text>
+
+        <!-- OLD ROW -->
+        <g font-family="DM Sans, sans-serif">
+          <g><rect x="0"   y="30" width="120" height="66" rx="8" fill="#F5F5F5" stroke="#E2E0DA"/><text x="14" y="50" font-size="10" font-weight="700" fill="#888">1</text><text x="14" y="70" font-size="12" font-weight="700" fill="#1C1C1A">Client Details</text><text x="14" y="86" font-size="10" fill="#888">admin</text></g>
+          <path d="M122 63 L148 63" stroke="#B8B6B0" stroke-width="1.5" marker-end="url(#arrow-mid)" fill="none"/>
+
+          <g><rect x="150" y="30" width="120" height="66" rx="8" fill="#F5F5F5" stroke="#E2E0DA"/><text x="164" y="50" font-size="10" font-weight="700" fill="#888">2</text><text x="164" y="70" font-size="12" font-weight="700" fill="#1C1C1A">Permission</text><text x="164" y="86" font-size="10" fill="#888">admin</text></g>
+          <path d="M272 63 L298 63" stroke="#B8B6B0" stroke-width="1.5" marker-end="url(#arrow-mid)" fill="none"/>
+
+          <g><rect x="300" y="30" width="120" height="66" rx="8" fill="#1C1C1A" stroke="#1C1C1A" stroke-width="1.5"/><text x="314" y="50" font-size="10" font-weight="700" fill="#B8B6B0">3</text><text x="314" y="70" font-size="12" font-weight="700" fill="#fff">Document Upload</text><text x="314" y="86" font-size="10" fill="#B8B6B0">the real trigger</text></g>
+          <path d="M422 63 L448 63" stroke="#B8B6B0" stroke-width="1.5" marker-end="url(#arrow-mid)" fill="none"/>
+
+          <g><rect x="450" y="30" width="120" height="66" rx="8" fill="#fff" stroke="#E2E0DA"/><text x="464" y="50" font-size="10" font-weight="700" fill="#888">4</text><text x="464" y="70" font-size="12" font-weight="700" fill="#1C1C1A">Form 3CA</text><text x="464" y="86" font-size="10" fill="#888">final wrap</text></g>
+          <path d="M572 63 L598 63" stroke="#B8B6B0" stroke-width="1.5" marker-end="url(#arrow-mid)" fill="none"/>
+
+          <g><rect x="600" y="30" width="120" height="66" rx="8" fill="#fff" stroke="#E2E0DA"/><text x="614" y="50" font-size="10" font-weight="700" fill="#888">5</text><text x="614" y="70" font-size="12" font-weight="700" fill="#1C1C1A">Form 3CD</text><text x="614" y="86" font-size="10" fill="#888">90% of time</text></g>
+        </g>
+
+        <!-- MOVEMENT INDICATOR -->
+        <path d="M360 100 Q 360 150 60 200" stroke="#1C1C1A" stroke-width="1.5" stroke-dasharray="3 3" fill="none" opacity="0.55" marker-end="url(#arrow-ink)"/>
+        <text x="200" y="148" font-size="10" font-style="italic" fill="#1C1C1A" font-weight="600">moved up to step 1</text>
+
+        <!-- NEW ROW LABEL -->
+        <text x="0" y="195" font-size="11" font-weight="700" letter-spacing="0.08em" fill="#1C1C1A">NEW &#8212; AS REDESIGNED</text>
+        <text x="170" y="195" font-size="11" fill="#888">mirrors what consultants actually do</text>
+
+        <!-- NEW ROW -->
+        <g font-family="DM Sans, sans-serif">
+          <g><rect x="0"   y="210" width="120" height="66" rx="8" fill="#1C1C1A" stroke="#1C1C1A" stroke-width="1.5"/><text x="14" y="230" font-size="10" font-weight="700" fill="#B8B6B0">1</text><text x="14" y="250" font-size="12" font-weight="700" fill="#fff">Document Upload</text><text x="14" y="266" font-size="10" fill="#B8B6B0">operational trigger</text></g>
+          <path d="M122 243 L148 243" stroke="#B8B6B0" stroke-width="1.5" marker-end="url(#arrow-mid)" fill="none"/>
+
+          <g><rect x="150" y="210" width="120" height="66" rx="8" fill="#fff" stroke="#1C1C1A" stroke-width="1.5"/><text x="164" y="230" font-size="10" font-weight="700" fill="#1C1C1A">2</text><text x="164" y="250" font-size="12" font-weight="700" fill="#1C1C1A">Form 3CD</text><text x="164" y="266" font-size="10" fill="#1C1C1A">90% of work</text></g>
+          <path d="M272 243 L298 243" stroke="#B8B6B0" stroke-width="1.5" marker-end="url(#arrow-mid)" fill="none"/>
+
+          <g><rect x="300" y="210" width="120" height="66" rx="8" fill="#fff" stroke="#E2E0DA"/><text x="314" y="230" font-size="10" font-weight="700" fill="#888">3</text><text x="314" y="250" font-size="12" font-weight="700" fill="#1C1C1A">Form 3CA</text><text x="314" y="266" font-size="10" fill="#888">after 3CD</text></g>
+          <path d="M422 243 L448 243" stroke="#B8B6B0" stroke-width="1.5" marker-end="url(#arrow-mid)" fill="none"/>
+
+          <g><rect x="450" y="210" width="120" height="66" rx="8" fill="#F5F5F5" stroke="#E2E0DA"/><text x="464" y="230" font-size="10" font-weight="700" fill="#888">4</text><text x="464" y="250" font-size="12" font-weight="700" fill="#1C1C1A">Client Details</text><text x="464" y="266" font-size="10" fill="#888">reference</text></g>
+          <path d="M572 243 L598 243" stroke="#B8B6B0" stroke-width="1.5" marker-end="url(#arrow-mid)" fill="none"/>
+
+          <g><rect x="600" y="210" width="120" height="66" rx="8" fill="#F5F5F5" stroke="#E2E0DA"/><text x="614" y="230" font-size="10" font-weight="700" fill="#888">5</text><text x="614" y="250" font-size="12" font-weight="700" fill="#1C1C1A">Permission</text><text x="614" y="266" font-size="10" fill="#888">admin</text></g>
+        </g>
+      </svg>
+
+      <div class="flow-key">
+        <span><i style="background:#1C1C1A"></i> Operational trigger</span>
+        <span><i style="background:#fff;border:1.5px solid #1C1C1A"></i> Primary work</span>
+        <span><i style="background:#fff;border:1px solid #E2E0DA"></i> Sequential</span>
+        <span><i style="background:#F5F5F5;border:1px solid #E2E0DA"></i> Admin / reference</span>
+      </div>
+      </div>
+
+      <p style="margin-top:32px;font-size:0.95rem;color:#3a3a3a;">The consultant has <em>already</em> selected the client by the time a task opens — so Client Details and Permission are reference, not workflow. Document Upload is the real operational trigger; Form 3CD is where 90% of the work happens. Reordering the surface to match that reality removed a cognitive switch from every single task.</p>
+    </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- DESIGN DECISIONS -->
+<section id="d-decisions" class="section-anchor">
+  <div class="wrap">
+    <div class="chapter"><span class="chapter-num">Design Decisions</span><div class="chapter-line"></div></div>
+    <h2>Five changes. None of them cosmetic.</h2>
+    <p>Each change came from something I&rsquo;d watched a consultant struggle with. Nothing was redesigned because it looked dated.</p>
+
+    <div class="decision-item">
+        <p class="gap-label">Decision 1</p>
+        <div class="dec-fig"><div class="dec-grid">
+  <div class="dec-col"><p class="dec-cap bad"><span class="dot"></span>Sidebar</p><div class="dec-mock"><div class="uiw"><div class="bar"></div><div class="flex"><div class="side"><b>Nav</b><small>260px</small></div><div class="ct tight"><div class="ln"></div><div class="ln"></div><div class="ln short"></div><small>table squeezed</small></div></div></div></div><p class="dec-foot">Only three links lived here &mdash; a whole column of width spent on almost nothing.</p></div>
+  <div class="dec-mid">&rarr;</div>
+  <div class="dec-col"><p class="dec-cap good"><span class="dot"></span>Top navigation</p><div class="dec-mock"><div class="uiw"><div class="top"><span>Dashboard</span><span>Clients</span><span>Tasks</span></div><div class="ct"><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln short"></div><small>+260px for the data</small></div></div></div><p class="dec-foot">Navigation moves up top; the dense tables finally get the width they needed.</p></div>
+</div></div>
+        <h3 class="gap-title">Why the sidebar had to go</h3>
+        <p class="gap-desc">Only three main sections existed. A sidebar pretended there were more &mdash; and was eating the room the tables actually needed.</p>
+        
+      </div>
+    <div class="decision-item">
+        <p class="gap-label">Decision 2</p>
+        <div class="dec-fig"><div class="dec-grid">
+  <div class="dec-col"><p class="dec-cap bad"><span class="dot"></span>Tab order</p><div class="dec-mock"><div class="tabs"><span class="tab">Client Details</span><span class="tab">Permission</span><span class="tab">Doc Upload</span><span class="tab">Form 3CA</span><span class="tab warn">Form 3CD</span></div></div><p class="dec-foot">Form 3CD sat <strong>last</strong> &mdash; yet it was the first thing every consultant opened.</p></div>
+  <div class="dec-mid">&rarr;</div>
+  <div class="dec-col"><p class="dec-cap good"><span class="dot"></span>Reordered</p><div class="dec-mock"><div class="tabs"><span class="tab hot">Doc Upload</span><span class="tab hot">Form 3CD</span><span class="tab">Form 3CA</span><span class="tab">Client Details</span><span class="tab">Permission</span></div></div><p class="dec-foot">Tabs now open in the order the work actually happens &mdash; uploads, then Form 3CD.</p></div>
+</div></div>
+        <h3 class="gap-title">Why the tab order was lying to consultants</h3>
+        <p class="gap-desc">Tab one was a thing they never touched first. Re-ordering the tabs to match what they actually did first &mdash; uploads, then Form 3CD &mdash; meant their hands stopped fighting their brain.</p>
+        
+      </div>
+    <div class="decision-item">
+        <p class="gap-label">Decision 3</p>
+        <div class="dec-fig"><div class="dec-grid">
+  <div class="dec-col"><p class="dec-cap bad"><span class="dot"></span>No feedback</p><div class="dec-mock"><div class="up"><span>Ledgers.xlsx</span><span class="b">Upload</span></div><div class="up" style="opacity:.6;"><span>Ledgers.xlsx</span><span class="b">Upload</span></div><div class="up" style="opacity:.35;"><span>Ledgers.xlsx</span><span class="b">Upload</span></div></div><p class="dec-foot">Nothing changed on screen after clicking Upload &mdash; so the same file got sent again and again.</p></div>
+  <div class="dec-mid">&rarr;</div>
+  <div class="dec-col"><p class="dec-cap good"><span class="dot"></span>Clear status</p><div class="dec-mock"><div class="up"><span>Ledgers.xlsx</span><span class="b">Upload</span></div><div class="prog"><i></i></div><div class="done"><span class="ck">&check;</span> 3 files uploaded &middot; Done</div></div><p class="dec-foot">A progress bar and a file count killed an entire category of duplicate-record errors.</p></div>
+</div></div>
+        <h3 class="gap-title">Why uploads kept happening twice</h3>
+        <p class="gap-desc">When the upload didn&rsquo;t say &lsquo;done&rsquo;, people uploaded it again. And again. A file count and a progress bar killed an entire category of duplicate-record errors.</p>
+        
+      </div>
+    <div class="decision-item">
+        <p class="gap-label">Decision 4</p>
+        <div class="dec-fig"><div class="dec-grid">
+          <div class="dec-col">
+            <p class="dec-cap bad"><span class="dot"></span>Dense table</p>
+            <div class="dec-mock" style="padding:0;overflow:hidden;">
+              <table class="dt flat"><thead><tr><th>S No</th><th>Block of asset</th><th>Rate</th><th>Opening WDV</th></tr></thead>
+              <tbody>
+          <tr><td>1</td><td>Plant &amp; Machinery @15%</td><td>10</td><td>0</td></tr>
+          <tr><td>2</td><td>Building @10%</td><td>15</td><td>44,66,824</td></tr>
+          <tr><td>3</td><td>Furniture &amp; Fittings @10%</td><td>10</td><td>57,84,265</td></tr>
+          <tr><td>4</td><td>Building @15%</td><td>15</td><td>44,66,824</td></tr></tbody></table>
+            </div>
+            <p class="dec-foot">Naked values crammed against hairline borders, no breathing room &mdash; every column the same weight, so a wide, data-heavy row is hard to track.</p>
+          </div>
+          <div class="dec-mid">&rarr;</div>
+          <div class="dec-col">
+            <p class="dec-cap good"><span class="dot"></span>Field-framed table</p>
+            <div class="dec-mock" style="padding:0;overflow:hidden;">
+              <table class="dt2"><thead><tr><th></th><th>S No</th><th>Block of asset</th><th>Rate</th><th>Opening WDV</th></tr></thead>
+              <tbody>
+            <tr>
+              <td><span class="cbx"></span></td>
+              <td><span class="snpill">1</span></td>
+              <td><span class="cellfield"><span>Plant &amp; Machinery @15%</span><span class="chev">&#9662;</span></span></td>
+              <td><span class="cellfield">10</span></td>
+              <td><span class="cellfield">0</span></td>
+            </tr>
+            <tr>
+              <td><span class="cbx"></span></td>
+              <td><span class="snpill">2</span></td>
+              <td><span class="cellfield"><span>Building @10%</span><span class="chev">&#9662;</span></span></td>
+              <td><span class="cellfield">15</span></td>
+              <td><span class="cellfield">44,66,824</span></td>
+            </tr>
+            <tr>
+              <td><span class="cbx"></span></td>
+              <td><span class="snpill">3</span></td>
+              <td><span class="cellfield"><span>Furniture &amp; Fittings @10%</span><span class="chev">&#9662;</span></span></td>
+              <td><span class="cellfield">10</span></td>
+              <td><span class="cellfield">57,84,265</span></td>
+            </tr>
+            <tr>
+              <td><span class="cbx"></span></td>
+              <td><span class="snpill">4</span></td>
+              <td><span class="cellfield"><span>Building @15%</span><span class="chev">&#9662;</span></span></td>
+              <td><span class="cellfield">15</span></td>
+              <td><span class="cellfield">44,66,824</span></td>
+            </tr></tbody></table>
+            </div>
+            <p class="dec-foot">Each value sits in its own padded, rounded field with a calm header and alternating bands &mdash; clear boundaries, an editable feel, and a consistent left indent the eye can run straight down.</p>
+          </div>
+        </div></div>
+        <h3 class="gap-title">Why the tables were tiring to read</h3>
+        <p class="gap-desc">Striped rows and taller cells so the eye tracks across a wide row without losing its place &mdash; and right-aligned, comma-grouped figures so the numbers line up and totals are scannable. Exactly what a data-heavy audit table needs.</p>
+        
+      </div>
+
+    <div class="decision-item">
+      <p class="gap-label">Decision 5</p>
+        <div class="dec-fig"><div class="dec-grid">
+          <div class="dec-col">
+            <p class="dec-cap bad"><span class="dot"></span>One flat team</p>
+            <div class="dec-mock" style="justify-content:flex-start;">
+              <div class="teamhead">Client Engagement Team</div>
+              <div class="teamgrid"><div class="lvl"><small>Level 8</small><span class="cellfield"><span>Choose</span><span class="chev">&#9662;</span></span></div><div class="lvl"><small>Level 13</small><span class="cellfield"><span>Choose</span><span class="chev">&#9662;</span></span></div><div class="lvl"><small>Level 11</small><span class="cellfield"><span>Choose</span><span class="chev">&#9662;</span></span></div><div class="lvl"><small>Level 14</small><span class="cellfield"><span>Choose</span><span class="chev">&#9662;</span></span></div><div class="lvl"><small>Level 12</small><span class="cellfield"><span>Choose</span><span class="chev">&#9662;</span></span></div><div class="lvl"><small>Level 10</small><span class="cellfield"><span>Choose</span><span class="chev">&#9662;</span></span></div></div>
+            </div>
+            <p class="dec-foot">Old tool: after onboarding, everyone landed in one flat &lsquo;Client Engagement Team&rsquo; &mdash; levels piled together, branch vs. central ownership invisible.</p>
+          </div>
+          <div class="dec-mid">&rarr;</div>
+          <div class="dec-col">
+            <p class="dec-cap good"><span class="dot"></span>Branch + Central flow</p>
+            <div class="dec-mock" style="justify-content:flex-start;">
+              <div class="stepper">
+                <div class="step"><span class="stepnum done">&check;</span><span class="steptx"><b>Client Form</b><small>client onboarded</small></span></div>
+                <div class="step"><span class="stepnum now">2</span><span class="steptx"><b>Branch Engagement Team</b><small>allocate clauses to each branch</small></span></div>
+                <div class="step"><span class="stepnum next">3</span><span class="steptx"><b>Central Engagement Team</b><small>assign levels &amp; engagement partner</small></span></div>
+              </div>
+            </div>
+            <p class="dec-foot">Redesign: a stepped flow &mdash; Client &rarr; Branch (clauses allocated per branch) &rarr; Central (levels + partner) &mdash; so ownership is explicit at every stage.</p>
+          </div>
+        </div></div>
+        <h3 class="gap-title">Why &lsquo;who owns this?&rsquo; needed to live on screen</h3>
+      <p class="gap-desc">The client was expanding across branches, but the software didn&rsquo;t separate who owned what. I split setup into three clear steps &mdash; Client, Branch team, then Central team &mdash; so the ownership question stopped living inside someone&rsquo;s head.</p>
+    </div>
+  </div>
+</section>
+
+<!-- NDA REVEAL -->
+<section class="section-anchor">
+  <div class="wrap">
+    <div class="nda-block">
+      <div class="nda-frame" aria-label="A blurred preview of the redesigned compliance platform. The full screens are under NDA.">
+        <div class="nda-faux" aria-hidden="true"></div>
+        <div class="nda-overlay">
+          <span class="nda-eyebrow">Behind the glass</span>
+          <h3>This project is under NDA.</h3>
+          <p>The redesigned workspace &mdash; the reordered task flow, the ownership model, the live screens consultants use every day &mdash; sits behind a confidentiality agreement. If you&rsquo;d like to walk through the full screens and decisions in detail, reach out and I&rsquo;ll talk you through it.</p>
+          <a class="nda-cta" href="mailto:richasain1989@gmail.com">
+            <span>Get in touch</span>
+            <span aria-hidden="true">&rarr;</span>
+          </a>
+        </div>
+      </div>
+      <p class="nda-caption">Designed. Approved. Shipped. Just not pictured.</p>
+    </div>
+  </div>
+</section>
+
+<!-- RESULTS -->
+<section id="d-results" class="section-anchor" style="background:#F7F7F7;">
+  <div class="wrap">
+    <div class="chapter"><span class="chapter-num">Results</span><div class="chapter-line"></div></div>
+    <h2>What changed &mdash; and what stayed put</h2>
+    <div class="results-headline" style="background:#fff;border:1px solid var(--rule);border-radius:10px;padding:28px 32px;margin:24px 0 28px;">
+      <p style="font-size:1.6rem;font-weight:700;color:var(--ink);margin:0 0 8px;line-height:1.25;">Same product. Same buttons. Fewer cuts.</p>
+      <p style="font-size:14px;color:var(--mid);margin:0;">The redesign was structural, not visual. Consultants who&rsquo;d learned the old system didn&rsquo;t lose their muscle memory &mdash; they just stopped fighting it.</p>
+    </div>
+    <p>I deliberately didn&rsquo;t make the new product look unrecognisable. Consultants had already learned where things lived. A dramatic overhaul would have been a second tax on people who deal with enough taxes already. The changes happened underneath.</p>
+    <div class="gaps-grid" style="margin-top:28px;">
+      <div class="gap-card">
+        <h3 class="gap-title" style="font-size:1rem;">Tasks completed faster</h3>
+        <p class="gap-desc">The flow now matches the real order of work, cutting unnecessary steps on every compliance task.</p>
+      </div>
+      <div class="gap-card">
+        <h3 class="gap-title" style="font-size:1rem;">Branch responsibilities became traceable</h3>
+        <p class="gap-desc">A business problem that was invisible in the interface was explicitly modelled in the design.</p>
+      </div>
+      <div class="gap-card">
+        <h3 class="gap-title" style="font-size:1rem;">Duplicate uploads dropped</h3>
+        <p class="gap-desc">Consultants could see exactly what had been uploaded and stopped second-guessing the system.</p>
+      </div>
+      <div class="gap-card">
+        <h3 class="gap-title" style="font-size:1rem;">Tables became easier to read</h3>
+        <p class="gap-desc">Striped rows and field-framed cells let the eye track across a wide row without losing its place &mdash; cutting misreads on the most data-heavy screens.</p>
+      </div>
+      <div class="gap-card">
+        <h3 class="gap-title" style="font-size:1rem;">Screen real estate served the data</h3>
+        <p class="gap-desc">With the sidebar removed, the most demanding screens finally had the horizontal space they needed.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REFLECTION -->
+<section class="closing" id="d-reflection">
+  <div class="wrap" style="text-align:left;">
+    <div class="chapter"><span class="chapter-num">Reflection</span><div class="chapter-line"></div></div>
+    <h2>What this project taught me</h2>
+    <p>Enterprise software is built around processes. But processes are run by people. The job isn&rsquo;t to make the screens prettier &mdash; it&rsquo;s to close the gap between how the software works and how the human in front of it works.</p>
+    <p>I knew nothing about tax compliance when I started. That helped. It meant I asked the obvious questions someone closer to the system would have stopped asking years ago. The three consultants I sat with were patient and honest &mdash; their answers basically wrote this project.</p>
+    <p>One question ran through every decision: <em>does this match how a consultant actually thinks?</em> If no, I changed it. If yes, I left it alone. That was the whole project.</p>
+    <div class="byline"><strong>UX/UI Designer</strong> &mdash; Audit Management Tool &middot; Confidential (NDA)</div>
+
+    <a class="next-case" href="case-study-3.html" aria-label="Open next case study: Tax Filing Platform">
+      <div>
+        <p class="nc-eyebrow">Next case study</p>
+        <p class="nc-title">Tax Filing Platform</p>
+        <p class="nc-meta">Tax compliance &middot; Built from scratch &middot; 2024</p>
+      </div>
+      <div class="nc-arrow" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M5 13L13 5M13 5H7M13 5V11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </a>
+  </div>
+</section>
+
+<script>
+  var nav = document.querySelector('.left-nav');
+  var hero = document.getElementById('d-intro');
+  var links = document.querySelectorAll('.left-nav a[href^="#d-"]');
+  function onScroll(){
+    var heroBottom = hero ? hero.offsetTop + hero.offsetHeight : 400;
+    var y = window.scrollY;
+    if(y > heroBottom - 80){ nav.classList.add('visible'); }
+    else { nav.classList.remove('visible'); }
+    var scrollY = y + 100;
+    var current = null;
+    links.forEach(function(l){
+      var id = l.getAttribute('href').slice(1);
+      var el = document.getElementById(id);
+      if(el && el.offsetTop <= scrollY) current = l;
+    });
+    links.forEach(function(l){ l.classList.remove('active'); });
+    if(current) current.classList.add('active');
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+</script>
+<script>
+  // Before/After comparison slider
+  (function(){
+    function bind(el){
+      function setPos(clientX){
+        var rect = el.getBoundingClientRect();
+        var x = Math.max(0, Math.min(rect.width, clientX - rect.left));
+        var pct = (x / rect.width) * 100;
+        el.style.setProperty('--pos', pct + '%');
+        el.setAttribute('aria-valuenow', String(Math.round(pct)));
+      }
+      var dragging = false;
+      el.addEventListener('mousedown', function(e){ dragging = true; setPos(e.clientX); e.preventDefault(); });
+      window.addEventListener('mousemove', function(e){ if(dragging) setPos(e.clientX); });
+      window.addEventListener('mouseup', function(){ dragging = false; });
+      el.addEventListener('touchstart', function(e){ dragging = true; setPos(e.touches[0].clientX); }, {passive:true});
+      window.addEventListener('touchmove', function(e){ if(dragging) setPos(e.touches[0].clientX); }, {passive:true});
+      window.addEventListener('touchend', function(){ dragging = false; });
+
+      el.setAttribute('tabindex','0');
+      el.setAttribute('role','slider');
+      el.setAttribute('aria-label','Drag to compare before and after');
+      el.setAttribute('aria-valuemin','0');
+      el.setAttribute('aria-valuemax','100');
+      el.setAttribute('aria-valuenow','50');
+      el.addEventListener('keydown', function(e){
+        var cs = getComputedStyle(el).getPropertyValue('--pos');
+        var cur = parseFloat(cs) || 50;
+        var next = cur;
+        if (e.key === 'ArrowLeft')  next = Math.max(0, cur - 5);
+        else if (e.key === 'ArrowRight') next = Math.min(100, cur + 5);
+        else return;
+        el.style.setProperty('--pos', next + '%');
+        el.setAttribute('aria-valuenow', String(Math.round(next)));
+        e.preventDefault();
+      });
+    }
+    document.querySelectorAll('.compare').forEach(bind);
+  })();
+</script>
+</body>
+</html>
