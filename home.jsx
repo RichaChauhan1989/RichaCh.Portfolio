@@ -28,15 +28,6 @@ function AboutDeco() {
   const sage = "#3a3a34";
   return (
     <div className="about-deco" aria-hidden="true">
-      <span className="dc dc-grid-tl"><DotGrid /></span>
-
-      <span className="dc dc-cur">
-        <svg viewBox="0 0 92 58" width="100%" height="100%">
-          <path d="M6 12 C 42 4 60 16 70 38" fill="none" stroke={sage} strokeWidth="1.6" strokeDasharray="2 6" strokeLinecap="round" />
-          <path d="M60 26 L82 40 L71 42 L76 55 L70 57 L65 44 L55 47 Z" fill="#fff" stroke={sage} strokeWidth="1.7" strokeLinejoin="round" />
-        </svg>
-      </span>
-
       <span className="dc dc-wire">
         <svg viewBox="0 0 104 60" width="100%" height="100%">
           <rect x="3" y="6" width="52" height="42" rx="4" fill="none" stroke={sage} strokeWidth="1.8" />
@@ -62,7 +53,7 @@ function AboutDeco() {
         </svg>
       </span>
 
-      <span className="dc dc-flowdiag">
+      <span className="dc dc-flowdiag" style={{ display: "none" }}>
         <svg viewBox="0 0 122 58" width="100%" height="100%">
           <rect x="3" y="17" width="34" height="26" rx="6" fill="#fff" stroke={sage} strokeWidth="1.8" />
           <path d="M11 27 H29 M11 34 H23" stroke={sage} strokeWidth="1.7" strokeLinecap="round" />
@@ -72,8 +63,6 @@ function AboutDeco() {
           <path d="M110 10 L114 3 M116 18 L122 16 M112 24 L117 27" stroke={sage} strokeWidth="1.6" strokeLinecap="round" />
         </svg>
       </span>
-
-      <span className="dc dc-grid-br"><DotGrid /></span>
     </div>
   );
 }
