@@ -29,10 +29,7 @@ function App() {
         onCursorChange={setCursor}
       />
 
-      {/* Touch fallback */}
-      <div className="touch-pill" aria-hidden="true">
-        {topCardIdx === 0 ? "swipe up to see work ↑" : "tap a row to open ↗"}
-      </div>
+      {/* Touch fallback removed per request */}
     </>
   );
 }

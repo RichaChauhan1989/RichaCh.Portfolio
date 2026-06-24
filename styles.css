@@ -182,7 +182,7 @@ body.custom-cursor, body.custom-cursor * { cursor: none !important; }
 .about-foot .mi-text { display: flex; flex-direction: column; gap: 3px; max-width: 116px; }
 .about-foot .meta-label { font-family: var(--font-body); font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); }
 .about-foot .meta-val { font-family: "Caveat", cursive; font-size: 19px; line-height: 1.05; color: var(--text); }
-@media (max-width: 760px) { .about-foot .meta-row { flex-wrap: wrap; } }
+@media (max-width: 760px) { .about-foot .meta-row { display:grid; grid-template-columns:1fr 1fr; gap:22px 14px; } .about-foot .mi-text { max-width:none; } }
 
 .home {
   min-height: 100vh; width: 100%;
@@ -413,9 +413,9 @@ body.custom-cursor, body.custom-cursor * { cursor: none !important; }
   /* Stack work cards: illustration on top, text below */
   .stack { aspect-ratio: auto; height: min(76dvh, 660px); }
   /* Card-stack motion, scaled for the taller mobile card so the peel/grow reads clearly */
-  .card.peek { transform: translateY(38px) scale(0.9); opacity: 0.92; }
+  .card.peek { transform: scale(0.93); opacity: 1; }
   .card.gone { transform: translateY(-62%) scale(0.9); opacity: 0; }
-  .card.behind { transform: translateY(64px) scale(0.82); opacity: 0; }
+  .card.behind { transform: scale(0.86); opacity: 0; }
   .card.pastel-card { padding: 30px 26px; }
   .card.pastel-card .pc-grid {
     grid-template-columns: 1fr;
@@ -453,7 +453,7 @@ body.custom-cursor, body.custom-cursor * { cursor: none !important; }
 }
 @media (max-width: 860px) {
   /* on phones there's no side whitespace, so hide floating doodles (matches .about-deco) */
-  .sphara-fx, .deloitte-fx { display: none; }
+  .deloitte-fx { display: none; }
 }
 
 /* ───── Thanks card (last in the stack) ───── */
@@ -850,6 +850,7 @@ body.custom-cursor, body.custom-cursor * { cursor: none !important; }
   .nav-inner { gap: 18px; }
   .nav-brand { display: none; }
   .home { padding: 72px 20px 28px; height: 100vh; height: 100dvh; min-height: 0; overflow: hidden; }
+  .peek-hint { display: none; }
   .card { padding: 32px 24px; border-radius: 22px; }
   .work-row { grid-template-columns: 32px 1fr auto; gap: 12px; }
   .work-row .yr { display: none; }
@@ -892,7 +893,11 @@ body.custom-cursor, body.custom-cursor * { cursor: none !important; }
 .sphara-fx .fx-sparkle { top:24px; right:34px; }
 .sphara-fx .fx-squiggle { bottom:44px; left:39%; transform:translateX(-50%); }
 .sphara-fx .fx-chat { bottom:24px; right:30px; }
-@media (max-width:860px){ .sphara-fx { display:none; } }
+@media (max-width:860px){
+  .sphara-fx { display:block; }
+  .sphara-fx .fx-dots { display:none; }
+  .sphara-fx .fx-sparkle { display:block; top:12px; right:14px; }
+}
 .pc-badge b { font-weight:800; }
 .side-rail { position:absolute; left:calc(50% - 624px); top:50%; transform:translateY(-50%);
   width:152px; display:flex; flex-direction:column; gap:10px; z-index:90; pointer-events:none; }

@@ -285,20 +285,8 @@ function SpharaFx() {
       <svg className="fx fx-dots" width="38" height="38" fill="#cdd0da">
         {[0,1,2].map(r => [0,1,2].map(c => <circle key={r+"-"+c} cx={5+c*14} cy={5+r*14} r="2.6" />))}
       </svg>
-      <svg className="fx fx-arrow" width="96" height="44" fill="none">
-        <path d="M4 30 C 30 6 64 6 90 26" stroke={ink} strokeWidth="1.7" strokeDasharray="2 6" strokeLinecap="round" />
-        <path d="M78 30 L92 27 L84 13" stroke={ink} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
       <svg className="fx fx-sparkle" width="34" height="34" fill={clay}>
         <path d="M17 1 C19 9 25 15 33 17 C25 19 19 25 17 33 C15 25 9 19 1 17 C9 15 15 9 17 1 Z" />
-      </svg>
-      <svg className="fx fx-squiggle" width="72" height="50" fill="none">
-        <path d="M6 42 C 18 50 29 44 29 33 C 29 26 20 24 19 31 C 18 40 31 45 50 25" stroke={ink} strokeWidth="2" strokeLinecap="round" />
-        <path d="M41 22 L52 24 L47 35" stroke={ink} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-      <svg className="fx fx-chat" width="50" height="46" fill="none">
-        <path d="M8 4 H42 a6 6 0 0 1 6 6 v15 a6 6 0 0 1 -6 6 H22 l-9 8 v-8 H8 a6 6 0 0 1 -6 -6 v-15 a6 6 0 0 1 6 -6 Z" stroke={ink} strokeWidth="1.7" strokeLinejoin="round" />
-        <path d="M25 14 c -3 -3 -8 -1 -8 3 c 0 5 8 9 8 9 c 0 0 8 -4 8 -9 c 0 -4 -5 -6 -8 -3 Z" stroke={ink} strokeWidth="1.6" strokeLinejoin="round" />
       </svg>
     </div>
   );
