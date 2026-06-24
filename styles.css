@@ -850,7 +850,12 @@ body.custom-cursor, body.custom-cursor * { cursor: none !important; }
   .nav-inner { gap: 18px; }
   .nav-brand { display: none; }
   .home { padding: 72px 20px 28px; height: 100vh; height: 100dvh; min-height: 0; overflow: hidden; }
-  .peek-hint { display: none; }
+  /* Explore guidance returns on mobile as a black pill; hide the plain status version */
+  .peek-hint { bottom: 16px; }
+  .peek-hint:not(.is-explore) { display: none; }
+  .explore-next { background:#1C1C1A; color:#fff; border-radius:999px; padding:12px 20px; font-family:var(--font-body); font-size:14px; gap:8px; box-shadow:0 8px 20px -8px rgba(20,18,15,.5); }
+  .explore-next .en-text { border-bottom:none; padding-bottom:0; color:#fff; }
+  .explore-next .en-arrow { color:#fff; font-size:16px; }
   .card { padding: 32px 24px; border-radius: 22px; }
   .work-row { grid-template-columns: 32px 1fr auto; gap: 12px; }
   .work-row .yr { display: none; }
@@ -948,6 +953,12 @@ body.custom-cursor, body.custom-cursor * { cursor: none !important; }
   .sph-col { gap:14px; }
   .sph-pill { font-size:12px; padding:6px 11px; gap:6px; }
   .sph-phone { width:152px; }
+}
+@media (max-width: 600px) {
+  /* phone: drop the side feature columns so the hub fits the card (prevents 420px overflow) */
+  .sph-hub .sph-col { display: none; }
+  .sph-hub .sph-phone { width: clamp(128px, 42vw, 158px); }
+  .card.pastel-card .pc-right { min-width: 0; }
 }
 
 /* Deloitte decisions board — unboxed thumbnail */
