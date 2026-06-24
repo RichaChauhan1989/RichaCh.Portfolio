@@ -411,7 +411,7 @@ body.custom-cursor, body.custom-cursor * { cursor: none !important; }
 
 @media (max-width: 960px) {
   /* Stack work cards: illustration on top, text below */
-  .stack { aspect-ratio: auto; height: min(76dvh, 660px); }
+  .stack { aspect-ratio: auto; height: min(82dvh, 720px); }
   /* Card-stack motion, scaled for the taller mobile card so the peel/grow reads clearly */
   .card.peek { transform: scale(0.93); opacity: 1; }
   .card.gone { transform: translateY(-62%) scale(0.9); opacity: 0; }
@@ -424,7 +424,7 @@ body.custom-cursor, body.custom-cursor * { cursor: none !important; }
     align-content: center;
     height: 100%;
   }
-  .pc-right { order: 1; width: 100%; display: flex; height: clamp(190px, 30vh, 280px); }
+  .pc-right { order: 1; width: 100%; display: flex; height: clamp(150px, 22vh, 210px); }
   /* the Sphara hub is sized by the phone, so let its cell grow to fit (no clipping/overlap) */
   .pc-right.pc-right-doodle { height: auto; align-items: center; }
   .pc-left {
@@ -957,7 +957,7 @@ body.custom-cursor, body.custom-cursor * { cursor: none !important; }
 @media (max-width: 600px) {
   /* phone: drop the side feature columns so the hub fits the card (prevents 420px overflow) */
   .sph-hub .sph-col { display: none; }
-  .sph-hub .sph-phone { width: clamp(128px, 42vw, 158px); }
+  .sph-hub .sph-phone { width: auto; height: clamp(160px, 22vh, 196px); max-width: none; }
   .card.pastel-card .pc-right { min-width: 0; }
 }
 
